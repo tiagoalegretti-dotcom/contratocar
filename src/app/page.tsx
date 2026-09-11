@@ -61,7 +61,7 @@ export default function Home() {
         <p className="mb-3 text-sm font-medium text-violet-700">
           Compra e venda de carro, moto ou caminhão
         </p>
-        <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 sm:text-6xl">
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 sm:text-6xl">
           Contrato de compra e venda{" "}
           <span className="text-violet-600">de veículo</span>
         </h1>
@@ -72,7 +72,7 @@ export default function Home() {
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/contrato"
-            className="rounded-full bg-violet-600 px-6 py-3 text-sm font-medium text-white hover:bg-violet-700"
+            className="inline-flex min-h-12 w-full max-w-xs items-center justify-center rounded-full bg-violet-600 px-6 py-3 text-sm font-medium text-white hover:bg-violet-700 sm:w-auto"
           >
             Gerar contrato
           </Link>

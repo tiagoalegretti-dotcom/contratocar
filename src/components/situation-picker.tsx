@@ -145,7 +145,7 @@ export function DeclarationScreen({
       >
         ←
       </button>
-      <h2 className="mt-8 text-3xl font-semibold tracking-tight">{title}</h2>
+      <h2 className="mt-6 text-2xl font-semibold tracking-tight sm:mt-8 sm:text-3xl">{title}</h2>
       <p className="mt-2 text-sm text-zinc-500">{hint}</p>
       <label className="mt-8 block text-sm">
         <span className="mb-2 block font-medium text-zinc-600">{label}</span>
@@ -199,7 +199,7 @@ export function ChoiceScreen({
       >
         ←
       </button>
-      <h2 className="mt-8 text-3xl font-semibold tracking-tight">{title}</h2>
+      <h2 className="mt-6 text-2xl font-semibold tracking-tight sm:mt-8 sm:text-3xl">{title}</h2>
       <p className="mt-2 text-sm text-zinc-500">{hint}</p>
       <div className="mt-8 grid gap-3">
         {options.map((opt) => {

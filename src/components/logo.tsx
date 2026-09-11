@@ -21,8 +21,8 @@ export function LogoMark({ className = "h-8 w-8" }: { className?: string }) {
 
 export function BrandLockup() {
   return (
-    <span className="flex items-center gap-2 font-semibold tracking-tight text-zinc-950">
-      <LogoMark />
+    <span className="flex items-center gap-2 text-sm font-semibold tracking-tight text-zinc-950 sm:text-base">
+      <LogoMark className="h-7 w-7 sm:h-8 sm:w-8" />
       ContratoCar
     </span>
   );

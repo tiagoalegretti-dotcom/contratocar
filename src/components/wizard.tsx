@@ -93,7 +93,7 @@ export function Wizard() {
   );
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-24 pt-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:px-6 lg:py-6 lg:pb-6">
+    <div className="mx-auto grid min-w-0 max-w-6xl gap-6 px-4 pb-28 pt-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:px-6 lg:py-6 lg:pb-6">
       <div>
         <div className="mb-4 flex gap-2 lg:hidden">
           <button
@@ -115,12 +115,12 @@ export function Wizard() {
         </div>
 
         <div className={tab === "preview" ? "hidden lg:block" : ""}>
-          <ol className="mb-5 flex gap-1 overflow-x-auto text-[11px] font-medium text-zinc-500">
+          <ol className="mb-5 flex gap-1 overflow-x-auto pb-1 text-[11px] font-medium text-zinc-500 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {STEPS.map((s, i) => (
               <li key={s}>
                 <button
                   onClick={() => setStep(i)}
-                  className={`min-h-11 whitespace-nowrap rounded-full px-3 ${
+                  className={`min-h-11 shrink-0 whitespace-nowrap rounded-full px-3 ${
                     i === step ? "bg-violet-600 text-white" : "bg-zinc-100"
                   }`}
                 >
@@ -438,19 +438,20 @@ export function Wizard() {
         </div>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/95 p-3 backdrop-blur-md lg:hidden print:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden print:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
           {nav}
         </div>
       </div>
 
       {tab === "preview" ? (
-        <ContractPreview data={data} locked />
-      ) : (
-        <div className="hidden lg:sticky lg:top-20 lg:block lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
+        <div className="min-w-0 lg:hidden">
           <ContractPreview data={data} locked />
         </div>
-      )}
+      ) : null}
+      <div className="hidden min-w-0 lg:sticky lg:top-20 lg:block lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
+        <ContractPreview data={data} locked />
+      </div>
     </div>
   );
 }

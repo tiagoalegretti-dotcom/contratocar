@@ -1,12 +1,13 @@
 import { AccountLinks } from "@/components/account-links";
 import { BrandLockup } from "@/components/logo";
+import { MobileNav } from "@/components/mobile-nav";
 import Link from "next/link";
 
 export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-200/80 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:h-16 sm:px-6">
-        <Link href="/" className="inline-flex min-h-11 items-center">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4 sm:h-16 sm:gap-3 sm:px-6">
+        <Link href="/" className="inline-flex min-h-11 min-w-0 items-center">
           <BrandLockup />
         </Link>
         <nav className="hidden items-center gap-6 text-sm text-zinc-600 md:flex">
@@ -15,14 +16,16 @@ export function Header() {
           <Link href="/recibo">Recibo</Link>
           <Link href="/calculadora-ipva">IPVA</Link>
         </nav>
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <AccountLinks />
           <Link
             href="/contrato"
-            className="inline-flex min-h-11 items-center rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700"
+            className="inline-flex min-h-11 items-center rounded-full bg-violet-600 px-3 py-2 text-sm font-medium text-white hover:bg-violet-700 sm:px-4"
           >
-            Gerar contrato
+            Gerar
+            <span className="hidden sm:inline">&nbsp;contrato</span>
           </Link>
+          <MobileNav />
         </div>
       </div>
     </header>

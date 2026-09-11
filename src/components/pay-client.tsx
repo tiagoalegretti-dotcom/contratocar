@@ -29,11 +29,11 @@ export function PayClient({
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12">
-      <div className="grid gap-10 lg:grid-cols-[1fr_24rem] lg:items-start">
-        <div>
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
+      <div className="grid gap-8 lg:grid-cols-[1fr_24rem] lg:items-start">
+        <div className="order-2 lg:order-1">
           <p className="text-sm text-zinc-500">Olá, {first}</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
             Seu contrato está pronto
           </h1>
           <p className="mt-3 max-w-lg text-base text-zinc-600">
@@ -72,7 +72,7 @@ export function PayClient({
             </p>
           )}
         </div>
-        <div className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm">
+        <div className="order-1 min-w-0 rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 lg:order-2">
           <p className="text-sm font-medium text-zinc-500">Contrato de compra e venda</p>
           <div className="mt-4 flex items-center justify-between text-sm">
             <span>Total</span>

@@ -151,6 +151,7 @@ export function MpCheckout({
   }
 
   return (
+    <div className="min-w-0 max-w-full overflow-x-auto">
     <Payment
       initialization={{ amount, payer: { email } }}
       customization={{
@@ -167,6 +168,7 @@ export function MpCheckout({
       onReady={() => undefined}
       onError={() => undefined}
     />
+    </div>
   );
 }
 
