@@ -11,6 +11,7 @@ export type InspectionStatus = "" | "done" | "not_done";
 export type AccessoriesStatus = "" | "stock" | "extras";
 export type WarrantyStatus = "" | "as_is" | "legal";
 export type PenaltyKind = "" | "10" | "20" | "custom_percent" | "fixed" | "none";
+export type EsignChoice = "" | "yes" | "no";
 
 export type Party = {
   type: PersonType;
@@ -73,6 +74,7 @@ export type ContractData = {
   transferDays: string;
   cityForum: string;
   stateForum: string;
+  wantEsign: EsignChoice;
 };
 
 export const emptyParty = (): Party => ({
@@ -136,6 +138,7 @@ export const emptyContract = (): ContractData => ({
   transferDays: "30",
   cityForum: "",
   stateForum: "",
+  wantEsign: "",
 });
 
 export const PRICE_BRL = 29.9;

@@ -1,6 +1,7 @@
 "use client";
 
 import { ContractPreview } from "@/components/contract-preview";
+import { EsignChoiceCards } from "@/components/esign-choice";
 import { Field, inputClass as input } from "@/components/form-ui";
 import { useAuth } from "@/components/auth-provider";
 import { saveContract } from "@/lib/contracts";
@@ -165,7 +166,7 @@ export function Wizard() {
               />
             )}
             {step === 3 && (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-5">
                 <Field label="Preço da venda (R$)">
                   <input
                     className={input}
@@ -175,6 +176,10 @@ export function Wizard() {
                     onChange={(e) => set("price", e.target.value)}
                   />
                 </Field>
+                <EsignChoiceCards
+                  value={data.wantEsign}
+                  onChange={(wantEsign) => set("wantEsign", wantEsign)}
+                />
               </div>
             )}
 

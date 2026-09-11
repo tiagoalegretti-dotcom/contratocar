@@ -4,8 +4,10 @@ export type AuthUser = {
   name: string;
 };
 
+import { FIREBASE_WEB_API_KEY } from "@/lib/firebase";
+
 export async function userFromIdToken(idToken: string): Promise<AuthUser | null> {
-  const key = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  const key = FIREBASE_WEB_API_KEY;
   if (!key || !idToken) return null;
   const res = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${key}`,

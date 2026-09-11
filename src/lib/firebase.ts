@@ -2,10 +2,13 @@ import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+export const FIREBASE_WEB_API_KEY =
+  process.env.FIREBASE_WEB_API_KEY ||
+  process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
+  "AIzaSyAvC0AtIDq2K7RXWGPMK8c3ngcLiASmx00";
+
 const config = {
-  apiKey:
-    process.env.NEXT_PUBLIC_FIREBASE_API_KEY ||
-    "AIzaSyAvC0AtIDq2K7RXWGPMK8c3ngcLiASmx00",
+  apiKey: FIREBASE_WEB_API_KEY,
   authDomain:
     process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ||
     "contratocar-app.firebaseapp.com",

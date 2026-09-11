@@ -203,7 +203,7 @@ export function PaidDocument({ data }: { data: ContractData }) {
                 <p className="mt-1 text-[10px] text-zinc-500">
                   Assinado eletronicamente em {draft.sellerSignedAt}
                 </p>
-              ) : (
+              ) : data.wantEsign === "yes" ? (
                 <button
                   type="button"
                   className="mt-2 rounded-full bg-violet-600 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-violet-700 print:hidden"
@@ -216,6 +216,10 @@ export function PaidDocument({ data }: { data: ContractData }) {
                 >
                   Assinar pelo site
                 </button>
+              ) : (
+                <p className="mt-1 text-[10px] text-zinc-500 print:block">
+                  Assinatura no papel
+                </p>
               )}
             </div>
             <div>
@@ -240,7 +244,7 @@ export function PaidDocument({ data }: { data: ContractData }) {
                 <p className="mt-1 text-[10px] text-zinc-500">
                   Assinado eletronicamente em {draft.buyerSignedAt}
                 </p>
-              ) : (
+              ) : data.wantEsign === "yes" ? (
                 <button
                   type="button"
                   className="mt-2 rounded-full bg-violet-600 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-violet-700 print:hidden"
@@ -253,6 +257,10 @@ export function PaidDocument({ data }: { data: ContractData }) {
                 >
                   Assinar pelo site
                 </button>
+              ) : (
+                <p className="mt-1 text-[10px] text-zinc-500 print:block">
+                  Assinatura no papel
+                </p>
               )}
             </div>
           </div>
