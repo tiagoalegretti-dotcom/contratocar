@@ -18,8 +18,70 @@ export type SavedContract = {
   updatedAt: string;
 };
 
-function localKey(uid: string) {
-  return `contratocar-contracts-${uid}`;
+const DRAFT_KEY = "contratocar-draft";
+
+export type LocalDraft = {
+  id: string;
+  data: ContractData;
+  updatedAt: string;
+};
+
+export function draftHasContent(data: ContractData) {
+  const d = { ...emptyContract(), ...data };
+  return Boolean(
+    d.brand.trim() ||
+      d.model.trim() ||
+      d.plate.trim() ||
+      d.price.trim() ||
+      d.seller.name.trim() ||
+      d.buyer.name.trim() ||
+      d.seller.document.trim() ||
+      d.buyer.document.trim(),
+  );
+}
+
+export function readLocalDraft(): LocalDraft | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw) as LocalDraft;
+      if (parsed?.data) {
+        return {
+          id: parsed.id || crypto.randomUUID(),
+          data: { ...emptyContract(), ...parsed.data },
+          updatedAt: parsed.updatedAt || new Date().toISOString(),
+        };
+      }
+    }
+    const session = sessionStorage.getItem("contratocar-contract");
+    if (!session) return null;
+    return {
+      id: sessionStorage.getItem("contratocar-contract-id") || crypto.randomUUID(),
+      data: { ...emptyContract(), ...(JSON.parse(session) as ContractData) },
+      updatedAt: new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function writeLocalDraft(draft: LocalDraft) {
+  const next: LocalDraft = {
+    ...draft,
+    data: { ...emptyContract(), ...draft.data },
+    updatedAt: new Date().toISOString(),
+  };
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(next));
+  sessionStorage.setItem("contratocar-contract", JSON.stringify(next.data));
+  sessionStorage.setItem("contratocar-contract-id", next.id);
+  return next;
+}
+
+export function clearLocalDraft() {
+  localStorage.removeItem(DRAFT_KEY);
+  sessionStorage.removeItem("contratocar-contract");
+  sessionStorage.removeItem("contratocar-contract-id");
+  sessionStorage.removeItem("contratocar-checkout");
 }
 
 function readLocal(uid: string): SavedContract[] {

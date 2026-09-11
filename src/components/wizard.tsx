@@ -4,7 +4,14 @@ import { ContractPreview } from "@/components/contract-preview";
 import { EsignChoiceCards } from "@/components/esign-choice";
 import { Field, inputClass as input } from "@/components/form-ui";
 import { useAuth } from "@/components/auth-provider";
-import { saveContract } from "@/lib/contracts";
+import {
+  clearLocalDraft,
+  contractLabel,
+  draftHasContent,
+  readLocalDraft,
+  saveContract,
+  writeLocalDraft,
+} from "@/lib/contracts";
 import {
   ACCESSORIES_OPTIONS,
   DEBTS_OPTIONS,
@@ -15,7 +22,7 @@ import {
   WARRANTY_OPTIONS,
 } from "@/lib/situation";
 import { emptyContract, type ContractData, type Party } from "@/lib/types";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const STEPS = ["Veículo", "Vendedor", "Comprador", "Negociação", "Situação"];
@@ -44,17 +51,65 @@ export function Wizard() {
   const [step, setStep] = useState(0);
   const [tab, setTab] = useState<"form" | "preview">("form");
   const [data, setData] = useState<ContractData>(emptyContract);
+  const [draftId, setDraftId] = useState("");
+  const [gate, setGate] = useState<"loading" | "ask" | "ready">("loading");
+  const [pendingLabel, setPendingLabel] = useState("Contrato em rascunho");
   const [finishing, setFinishing] = useState(false);
+  const skipSave = useRef(true);
   const router = useRouter();
   const { user } = useAuth();
   const set = <K extends keyof ContractData>(k: K, v: ContractData[K]) =>
     setData((d) => ({ ...d, [k]: v }));
 
+  useEffect(() => {
+    const local = readLocalDraft();
+    if (local && draftHasContent(local.data)) {
+      setPendingLabel(contractLabel({ ...local, paid: false }));
+      setData(local.data);
+      setDraftId(local.id);
+      setGate("ask");
+    } else {
+      setDraftId(crypto.randomUUID());
+      setGate("ready");
+    }
+    skipSave.current = false;
+  }, []);
+
+  useEffect(() => {
+    if (gate !== "ready" || skipSave.current || !draftId) return;
+    const t = window.setTimeout(() => {
+      writeLocalDraft({ id: draftId, data, updatedAt: new Date().toISOString() });
+      if (user) {
+        void saveContract(user.uid, { id: draftId, data, paid: false });
+      }
+    }, 600);
+    return () => window.clearTimeout(t);
+  }, [data, draftId, gate, user]);
+
+  function resumeDraft() {
+    writeLocalDraft({
+      id: draftId,
+      data,
+      updatedAt: new Date().toISOString(),
+    });
+    setGate("ready");
+  }
+
+  function startNew() {
+    skipSave.current = true;
+    clearLocalDraft();
+    const id = crypto.randomUUID();
+    setDraftId(id);
+    setData(emptyContract());
+    setStep(0);
+    setGate("ready");
+    skipSave.current = false;
+  }
+
   async function finish() {
     setFinishing(true);
-    const id = crypto.randomUUID();
-    sessionStorage.setItem("contratocar-contract", JSON.stringify(data));
-    sessionStorage.setItem("contratocar-contract-id", id);
+    const id = draftId || crypto.randomUUID();
+    writeLocalDraft({ id, data, updatedAt: new Date().toISOString() });
     sessionStorage.setItem("contratocar-checkout", "1");
     if (user) {
       await saveContract(user.uid, { id, data, paid: false });
@@ -94,6 +149,43 @@ export function Wizard() {
 
   return (
     <div className="mx-auto grid min-w-0 max-w-6xl gap-6 px-4 pb-28 pt-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:px-6 lg:py-6 lg:pb-6">
+      {gate === "ask" && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-zinc-950/50 p-4">
+          <div
+            role="dialog"
+            aria-labelledby="draft-title"
+            className="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-xl"
+          >
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-violet-50 text-violet-700">
+              ⌁
+            </div>
+            <h2 id="draft-title" className="mt-4 text-xl font-semibold">
+              Documento encontrado
+            </h2>
+            <p className="mt-2 text-sm text-zinc-600">
+              Você tem um contrato em andamento{pendingLabel !== "Contrato em rascunho" ? `: ${pendingLabel}` : ""}.
+              Deseja continuar ou criar um novo?
+            </p>
+            <button
+              type="button"
+              className="mt-6 min-h-12 w-full rounded-full bg-violet-600 text-sm font-medium text-white"
+              onClick={resumeDraft}
+            >
+              Continuar editando
+            </button>
+            <button
+              type="button"
+              className="mt-2 min-h-12 w-full text-sm font-medium text-violet-700"
+              onClick={startNew}
+            >
+              Criar novo
+            </button>
+          </div>
+        </div>
+      )}
+      {gate === "loading" && (
+        <p className="col-span-full text-center text-sm text-zinc-500">Carregando...</p>
+      )}
       <div>
         <div className="mb-4 flex gap-2 lg:hidden">
           <button
