@@ -90,6 +90,13 @@ export function formatBRL(value: number): string {
   }).format(value || 0);
 }
 
+export function parseBRL(price: string) {
+  const n = Number(
+    price.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", "."),
+  );
+  return Number.isFinite(n) ? n : 0;
+}
+
 export function moneyExtenso(value: number): string {
   const int = Math.floor(value || 0);
   const cents = Math.round(((value || 0) - int) * 100);

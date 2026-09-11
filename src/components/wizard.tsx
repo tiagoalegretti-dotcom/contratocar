@@ -30,7 +30,7 @@ function Field({
 }
 
 const input =
-  "w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none ring-violet-600/20 placeholder:text-zinc-400 focus:border-violet-500 focus:ring-4";
+  "min-h-12 w-full rounded-xl border border-zinc-200 bg-white px-3 text-base outline-none ring-violet-600/20 placeholder:text-zinc-400 focus:border-violet-500 focus:ring-4";
 
 function PartyFields({
   party,
@@ -40,6 +40,34 @@ function PartyFields({
   onChange: (p: Party) => void;
 }) {
   const set = (k: keyof Party, v: string) => onChange({ ...party, [k]: v });
+
+  async function onZip(zip: string) {
+    set("zip", zip);
+    const n = zip.replace(/\D/g, "");
+    if (n.length !== 8) return;
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${n}/json/`);
+      const json = (await res.json()) as {
+        erro?: boolean;
+        logradouro?: string;
+        bairro?: string;
+        localidade?: string;
+        uf?: string;
+      };
+      if (json.erro) return;
+      onChange({
+        ...party,
+        zip,
+        street: json.logradouro || party.street,
+        neighborhood: json.bairro || party.neighborhood,
+        city: json.localidade || party.city,
+        state: json.uf || party.state,
+      });
+    } catch {
+      /* ignore */
+    }
+  }
+
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <Field label="Pessoa">
@@ -57,6 +85,8 @@ function PartyFields({
       <Field label={party.type === "pj" ? "Razão social" : "Nome completo"}>
         <input
           className={input}
+          autoComplete="name"
+          autoCapitalize="words"
           value={party.name}
           onChange={(e) => set("name", e.target.value)}
         />
@@ -64,6 +94,8 @@ function PartyFields({
       <Field label={party.type === "pj" ? "CNPJ" : "CPF"}>
         <input
           className={input}
+          inputMode="numeric"
+          autoComplete="off"
           value={party.document}
           onChange={(e) => set("document", e.target.value)}
         />
@@ -87,6 +119,7 @@ function PartyFields({
           <Field label="Profissão">
             <input
               className={input}
+              autoComplete="organization-title"
               value={party.occupation}
               onChange={(e) => set("occupation", e.target.value)}
             />
@@ -97,6 +130,8 @@ function PartyFields({
         <input
           className={input}
           type="email"
+          autoComplete="email"
+          inputMode="email"
           value={party.email}
           onChange={(e) => set("email", e.target.value)}
         />
@@ -104,6 +139,9 @@ function PartyFields({
       <Field label="Telefone">
         <input
           className={input}
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
           value={party.phone}
           onChange={(e) => set("phone", e.target.value)}
         />
@@ -111,13 +149,16 @@ function PartyFields({
       <Field label="CEP">
         <input
           className={input}
+          inputMode="numeric"
+          autoComplete="postal-code"
           value={party.zip}
-          onChange={(e) => set("zip", e.target.value)}
+          onChange={(e) => onZip(e.target.value)}
         />
       </Field>
       <Field label="Rua">
         <input
           className={input}
+          autoComplete="address-line1"
           value={party.street}
           onChange={(e) => set("street", e.target.value)}
         />
@@ -125,6 +166,8 @@ function PartyFields({
       <Field label="Número">
         <input
           className={input}
+          inputMode="numeric"
+          autoComplete="address-line2"
           value={party.number}
           onChange={(e) => set("number", e.target.value)}
         />
@@ -139,6 +182,7 @@ function PartyFields({
       <Field label="Cidade">
         <input
           className={input}
+          autoComplete="address-level2"
           value={party.city}
           onChange={(e) => set("city", e.target.value)}
         />
@@ -147,6 +191,8 @@ function PartyFields({
         <input
           className={input}
           maxLength={2}
+          autoComplete="address-level1"
+          autoCapitalize="characters"
           value={party.state}
           onChange={(e) => set("state", e.target.value.toUpperCase())}
         />
@@ -184,11 +230,11 @@ export function Wizard() {
   }
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-6 px-4 py-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:px-6 lg:py-6">
+    <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-24 pt-4 lg:px-6 lg:py-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:pb-6">
       <div className="lg:sticky lg:top-20 lg:self-start">
         <div className="mb-4 flex gap-2 lg:hidden">
           <button
-            className={`flex-1 rounded-full py-2 text-sm font-medium ${
+            className={`min-h-12 flex-1 rounded-full text-base font-medium ${
               tab === "form" ? "bg-violet-600 text-white" : "bg-zinc-100"
             }`}
             onClick={() => setTab("form")}
@@ -196,7 +242,7 @@ export function Wizard() {
             Perguntas
           </button>
           <button
-            className={`flex-1 rounded-full py-2 text-sm font-medium ${
+            className={`min-h-12 flex-1 rounded-full text-base font-medium ${
               tab === "preview" ? "bg-violet-600 text-white" : "bg-zinc-100"
             }`}
             onClick={() => setTab("preview")}
@@ -211,7 +257,7 @@ export function Wizard() {
               <li key={s}>
                 <button
                   onClick={() => setStep(i)}
-                  className={`whitespace-nowrap rounded-full px-2.5 py-1 ${
+            className={`min-h-11 whitespace-nowrap rounded-full px-3 ${
                     i === step ? "bg-violet-600 text-white" : "bg-zinc-100"
                   }`}
                 >
@@ -272,10 +318,10 @@ export function Wizard() {
                   <input className={input} value={data.model} onChange={(e) => set("model", e.target.value)} />
                 </Field>
                 <Field label="Ano fabricação">
-                  <input className={input} value={data.yearManufacture} onChange={(e) => set("yearManufacture", e.target.value)} />
+                  <input className={input} inputMode="numeric" maxLength={4} value={data.yearManufacture} onChange={(e) => set("yearManufacture", e.target.value)} />
                 </Field>
                 <Field label="Ano modelo">
-                  <input className={input} value={data.yearModel} onChange={(e) => set("yearModel", e.target.value)} />
+                  <input className={input} inputMode="numeric" maxLength={4} value={data.yearModel} onChange={(e) => set("yearModel", e.target.value)} />
                 </Field>
                 <Field label="Cor">
                   <input className={input} value={data.color} onChange={(e) => set("color", e.target.value)} />
@@ -284,16 +330,16 @@ export function Wizard() {
                   <input className={input} value={data.fuel} onChange={(e) => set("fuel", e.target.value)} />
                 </Field>
                 <Field label="Placa">
-                  <input className={input} value={data.plate} onChange={(e) => set("plate", e.target.value.toUpperCase())} />
+                  <input className={input} autoCapitalize="characters" value={data.plate} onChange={(e) => set("plate", e.target.value.toUpperCase())} />
                 </Field>
                 <Field label="Chassi">
-                  <input className={input} value={data.chassis} onChange={(e) => set("chassis", e.target.value.toUpperCase())} />
+                  <input className={input} autoCapitalize="characters" value={data.chassis} onChange={(e) => set("chassis", e.target.value.toUpperCase())} />
                 </Field>
                 <Field label="RENAVAM">
-                  <input className={input} value={data.renavam} onChange={(e) => set("renavam", e.target.value)} />
+                  <input className={input} inputMode="numeric" value={data.renavam} onChange={(e) => set("renavam", e.target.value)} />
                 </Field>
                 <Field label="Quilometragem">
-                  <input className={input} value={data.km} onChange={(e) => set("km", e.target.value)} />
+                  <input className={input} inputMode="numeric" value={data.km} onChange={(e) => set("km", e.target.value)} />
                 </Field>
               </div>
             )}
@@ -351,7 +397,7 @@ export function Wizard() {
               </div>
             )}
 
-            <div className="mt-5 flex items-center justify-between gap-3">
+            <div className="mt-5 hidden items-center justify-between gap-3 lg:flex">
               <button
                 className="rounded-full px-4 py-2 text-sm text-zinc-600 disabled:opacity-40"
                 disabled={step === 0}
@@ -385,9 +431,41 @@ export function Wizard() {
         </div>
       </div>
 
-      <div className={tab === "form" ? "hidden lg:block" : ""}>
-        <ContractPreview data={data} locked />
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/95 p-3 backdrop-blur-md lg:hidden print:hidden">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
+          <button
+            className="min-h-12 rounded-full px-4 text-base text-zinc-600 disabled:opacity-40"
+            disabled={step === 0}
+            onClick={() => setStep((s) => s - 1)}
+          >
+            Voltar
+          </button>
+          {step < STEPS.length - 1 ? (
+            <button
+              className="min-h-12 flex-1 rounded-full bg-violet-600 px-5 text-base font-medium text-white"
+              onClick={() => setStep((s) => s + 1)}
+            >
+              Continuar
+            </button>
+          ) : (
+            <button
+              disabled={!canFinish || finishing}
+              onClick={finish}
+              className="min-h-12 flex-1 rounded-full bg-violet-600 px-5 text-base font-medium text-white disabled:opacity-40"
+            >
+              {finishing ? "Aguarde..." : "Finalizar"}
+            </button>
+          )}
+        </div>
       </div>
+
+      {tab === "preview" ? (
+        <ContractPreview data={data} locked />
+      ) : (
+        <div className="hidden lg:block">
+          <ContractPreview data={data} locked />
+        </div>
+      )}
     </div>
   );
 }

@@ -74,6 +74,39 @@ export default function Home() {
         </ul>
       </section>
 
+      <section id="ferramentas" className="mx-auto max-w-5xl px-4 pb-16">
+        <h2 className="mb-2 text-center text-2xl font-semibold">Ferramentas grátis</h2>
+        <p className="mb-8 text-center text-sm text-zinc-600">
+          Sem cadastro. Use e imprima quando quiser.
+        </p>
+        <ul className="grid gap-4 sm:grid-cols-2">
+          <li>
+            <Link
+              href="/recibo"
+              className="block h-full rounded-2xl border border-zinc-200 bg-white p-5 hover:border-violet-300"
+            >
+              <p className="text-xs font-medium text-violet-700">Grátis</p>
+              <h3 className="mt-1 font-semibold">Recibo de venda de veículo</h3>
+              <p className="mt-1 text-sm text-zinc-600">
+                Preencha vendedor, comprador, placa e valor. Imprima na hora.
+              </p>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/calculadora-ipva"
+              className="block h-full rounded-2xl border border-zinc-200 bg-white p-5 hover:border-violet-300"
+            >
+              <p className="text-xs font-medium text-violet-700">Grátis</p>
+              <h3 className="mt-1 font-semibold">Calculadora de IPVA proporcional</h3>
+              <p className="mt-1 text-sm text-zinc-600">
+                Veja quanto do IPVA do ano ainda resta no mês da venda, com opção de multas.
+              </p>
+            </Link>
+          </li>
+        </ul>
+      </section>
+
       <section className="bg-zinc-950 px-4 py-16 text-white">
         <div className="mx-auto max-w-lg rounded-3xl border border-white/10 bg-white/5 p-8 text-center">
           <p className="text-sm text-violet-300">Carro, moto ou caminhão</p>
