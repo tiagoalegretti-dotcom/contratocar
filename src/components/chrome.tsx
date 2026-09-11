@@ -10,9 +10,9 @@ export function Header() {
         </Link>
         <nav className="hidden items-center gap-6 text-sm text-zinc-600 md:flex">
           <Link href="/#como-funciona">Como funciona</Link>
-          <Link href="/#ferramentas">Ferramentas grátis</Link>
-          <Link href="/#beneficios">Assinatura</Link>
+          <Link href="/#faq">Dúvidas</Link>
           <Link href="/recibo">Recibo</Link>
+          <Link href="/calculadora-ipva">IPVA</Link>
         </nav>
         <Link
           href="/contrato"
@@ -29,8 +29,11 @@ export function Footer() {
   return (
     <footer className="border-t border-zinc-200 bg-zinc-50">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-8 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-        <p>© {new Date().getFullYear()} ContratoCar. Modelo para uso entre particulares.</p>
+        <p>© {new Date().getFullYear()} ContratoCar. Contrato particular de veículo.</p>
         <p className="flex flex-wrap gap-x-4 gap-y-1">
+          <Link href="/contrato" className="min-h-11 inline-flex items-center hover:text-zinc-800">
+            Gerar contrato
+          </Link>
           <Link href="/recibo" className="min-h-11 inline-flex items-center hover:text-zinc-800">
             Recibo grátis
           </Link>

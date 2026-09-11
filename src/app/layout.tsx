@@ -1,12 +1,39 @@
 import { AuthProvider } from "@/components/auth-provider";
 import { Footer, Header } from "@/components/chrome";
+import { siteUrl } from "@/lib/site";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+const title = "Contrato de compra e venda de veículo";
+const description =
+  "Gere o contrato de compra e venda de carro, moto ou caminhão. Para quem acabou de fechar o negócio e precisa do documento para a transferência no DETRAN.";
+
 export const metadata: Metadata = {
-  title: "ContratoCar | Contrato de compra e venda de veículo",
-  description:
-    "Gere um contrato de compra e venda de carro, moto ou caminhão. Preencha os dados e baixe o documento.",
+  metadataBase: new URL(siteUrl()),
+  title: {
+    default: `${title} | ContratoCar`,
+    template: "%s | ContratoCar",
+  },
+  description,
+  applicationName: "ContratoCar",
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "/",
+    siteName: "ContratoCar",
+    title,
+    description,
+  },
+  twitter: {
+    card: "summary",
+    title,
+    description,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   icons: {
     icon: { url: "/logo.svg", type: "image/svg+xml" },
   },

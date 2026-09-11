@@ -3,9 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Calculadora de IPVA proporcional | ContratoCar",
+  title: "Calculadora de IPVA proporcional na venda do carro",
   description:
-    "Calcule o IPVA proporcional na venda do veículo e some multas. Grátis, sem cadastro.",
+    "Calcule o IPVA proporcional no mês da venda do veículo e some multas. Grátis, sem cadastro. Use o valor no contrato.",
+  alternates: { canonical: "/calculadora-ipva" },
 };
 
 export default function IpvaPage() {

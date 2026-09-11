@@ -1,13 +1,14 @@
 "use client";
 
-import { firebaseReady, getFirebaseAuth, googleProvider } from "@/lib/firebase";
 import {
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut as fbSignOut,
-  type User,
-} from "firebase/auth";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { usePathname } from "next/navigation";
+import type { User } from "firebase/auth";
 
 type AuthCtx = {
   user: User | null;
@@ -20,22 +21,43 @@ type AuthCtx = {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
+function needsAuth(path: string) {
+  return path === "/entrar" || path === "/pagar" || path === "/pago";
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const path = usePathname() ?? "";
+  const authRoute = needsAuth(path);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const ready = firebaseReady();
+  const [loading, setLoading] = useState(authRoute);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const auth = getFirebaseAuth();
-    if (!auth) {
+    if (!authRoute) {
       setLoading(false);
       return;
     }
-    return onAuthStateChanged(auth, (next) => {
-      setUser(next);
-      setLoading(false);
-    });
-  }, []);
+    let unsub: (() => void) | undefined;
+    let cancelled = false;
+    (async () => {
+      const { firebaseReady, getFirebaseAuth } = await import("@/lib/firebase");
+      if (cancelled) return;
+      setReady(firebaseReady());
+      const auth = getFirebaseAuth();
+      if (!auth) {
+        setLoading(false);
+        return;
+      }
+      unsub = auth.onAuthStateChanged((next) => {
+        setUser(next);
+        setLoading(false);
+      });
+    })();
+    return () => {
+      cancelled = true;
+      unsub?.();
+    };
+  }, [authRoute]);
 
   const value = useMemo<AuthCtx>(
     () => ({
@@ -43,13 +65,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loading,
       ready,
       async signInGoogle() {
+        const { getFirebaseAuth, googleProvider } = await import("@/lib/firebase");
         const auth = getFirebaseAuth();
         if (!auth) throw new Error("Firebase não configurado");
+        const { signInWithPopup } = await import("firebase/auth");
         await signInWithPopup(auth, googleProvider);
       },
       async signOut() {
+        const { getFirebaseAuth } = await import("@/lib/firebase");
         const auth = getFirebaseAuth();
-        if (auth) await fbSignOut(auth);
+        if (!auth) return;
+        const { signOut } = await import("firebase/auth");
+        await signOut(auth);
       },
       async idToken() {
         if (!user) return null;

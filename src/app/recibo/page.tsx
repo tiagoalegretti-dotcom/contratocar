@@ -3,9 +3,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Recibo de venda de veículo grátis | ContratoCar",
+  title: "Recibo de venda de veículo grátis",
   description:
-    "Gere e imprima um recibo de compra e venda de veículo. Grátis, sem cadastro.",
+    "Gere um recibo de compra e venda de carro na hora. Grátis, sem cadastro. Não substitui o contrato nem a transferência no DETRAN.",
+  alternates: { canonical: "/recibo" },
 };
 
 export default function ReciboPage() {

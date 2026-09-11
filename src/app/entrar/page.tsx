@@ -59,7 +59,9 @@ export default function EntrarPage() {
         Depois do login você vê o valor e paga com PIX ou cartão no Mercado Pago.
       </p>
 
-      {!ready ? (
+      {loading ? (
+        <p className="mt-8 text-sm text-zinc-500">Carregando...</p>
+      ) : !ready ? (
         <p className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900">
           Falta configurar o Firebase. Coloque as chaves{" "}
           <code className="font-mono">NEXT_PUBLIC_FIREBASE_*</code> no{" "}

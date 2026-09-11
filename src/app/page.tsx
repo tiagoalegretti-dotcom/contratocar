@@ -1,22 +1,81 @@
 import Link from "next/link";
+import { siteUrl } from "@/lib/site";
+
+const faq = [
+  {
+    q: "Como fazer um contrato de compra e venda de carro?",
+    a: "Reúna os dados das partes e do veículo (placa, chassi, RENAVAM, preço). No ContratoCar você preenche, completa depois do pagamento, assina pelo celular e baixa o arquivo. A transferência no DETRAN continua sendo outro passo.",
+  },
+  {
+    q: "Preciso de contrato para transferir no DETRAN?",
+    a: "O DETRAN pede o CRV/ATPV-e e a comunicação de venda. O contrato particular não substitui isso, mas registra o negócio: preço, débitos, entrega e quem paga o quê, se houver briga depois.",
+  },
+  {
+    q: "Recibo de venda substitui o contrato?",
+    a: "Não. O recibo prova que o dinheiro foi pago. O contrato descreve o veículo, as obrigações e a multa se alguém desistir. Use os dois se quiser: recibo grátis aqui no site e contrato completo no gerador.",
+  },
+  {
+    q: "Qual o prazo para transferir o veículo depois da venda?",
+    a: "Pelo Código de Trânsito, o comprador em geral tem 30 dias para transferir. O vendedor deve fazer a comunicação de venda para não continuar responsável por multa e IPVA.",
+  },
+  {
+    q: "O contrato vale sem cartório?",
+    a: "Sim, contrato particular tem força entre as partes. Reconhecimento de firma é opcional e pode ajudar em alguns órgãos. A assinatura no site segue a MP 2.200-2/2001. Isso não substitui um advogado em casos complexos.",
+  },
+  {
+    q: "Dá para gerar contrato de moto ou caminhão?",
+    a: "Sim. O mesmo fluxo serve para carro, moto e caminhão. O texto muda o tipo do veículo.",
+  },
+];
 
 export default function Home() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        name: "ContratoCar",
+        url: siteUrl(),
+        inLanguage: "pt-BR",
+        description:
+          "Contrato de compra e venda de veículo online, com recibo e calculadora de IPVA.",
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faq.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: { "@type": "Answer", text: item.a },
+        })),
+      },
+    ],
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <section className="mx-auto max-w-3xl px-4 pb-8 pt-12 text-center sm:pt-20">
         <p className="mb-3 text-sm font-medium text-violet-700">
-          Compra e venda de veículos
+          Compra e venda de carro, moto ou caminhão
         </p>
         <h1 className="text-4xl font-semibold tracking-tight text-zinc-950 sm:text-6xl">
           Contrato de compra e venda{" "}
           <span className="text-violet-600">de veículo</span>
         </h1>
+        <p className="mx-auto mt-5 max-w-xl text-base text-zinc-600 sm:text-lg">
+          Para quem acabou de fechar o negócio e precisa do documento agora:
+          partes, placa, preço, débitos e assinatura no celular, antes de ir ao
+          DETRAN.
+        </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
             href="/contrato"
             className="rounded-full bg-violet-600 px-6 py-3 text-sm font-medium text-white hover:bg-violet-700"
           >
-            Começar
+            Gerar contrato
           </Link>
           <a
             href="#como-funciona"
@@ -31,9 +90,21 @@ export default function Home() {
         <h2 className="mb-8 text-center text-2xl font-semibold">Como funciona</h2>
         <ol className="grid gap-4 sm:grid-cols-3">
           {[
-            ["1", "Preencha", "Só o essencial: partes, veículo e valor."],
-            ["2", "Confira", "O contrato aparece ao lado, conforme você preenche."],
-            ["3", "Assine e baixe", "Pague, assine pelo site e baixe o arquivo."],
+            [
+              "1",
+              "Comece o rascunho",
+              "Pode avançar sem preencher tudo. Depois do pagamento você completa os dados obrigatórios.",
+            ],
+            [
+              "2",
+              "Confira o texto",
+              "A prévia do contrato acompanha o que você informa, sem copiar o documento até pagar.",
+            ],
+            [
+              "3",
+              "Pague, assine e baixe",
+              "PIX ou cartão. Comprador e vendedor assinam pelo site e baixam o arquivo.",
+            ],
           ].map(([n, t, d]) => (
             <li
               key={n}
@@ -47,6 +118,47 @@ export default function Home() {
             </li>
           ))}
         </ol>
+      </section>
+
+      <section className="mx-auto max-w-3xl px-4 pb-16">
+        <h2 className="text-center text-2xl font-semibold">
+          O que a pessoa busca depois de vender ou comprar o carro
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-center text-sm text-zinc-600">
+          Quase sempre não é “modelo jurídico”. É: o negócio fechou, o dinheiro
+          vai sair ou já saiu, e falta um papel que descreva o carro e proteja
+          as duas partes.
+        </p>
+        <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+          <li className="rounded-2xl border border-zinc-200 p-5">
+            <h3 className="font-semibold">Contrato de compra e venda</h3>
+            <p className="mt-1 text-sm text-zinc-600">
+              Quem vendeu, quem comprou, placa, chassi, preço, se tem
+              financiamento, débitos e como será o pagamento.
+            </p>
+          </li>
+          <li className="rounded-2xl border border-zinc-200 p-5">
+            <h3 className="font-semibold">Transferência no DETRAN</h3>
+            <p className="mt-1 text-sm text-zinc-600">
+              Prazo, em geral, de 30 dias. O contrato não faz a transferência,
+              mas deixa claro quem paga as despesas.
+            </p>
+          </li>
+          <li className="rounded-2xl border border-zinc-200 p-5">
+            <h3 className="font-semibold">Recibo do valor pago</h3>
+            <p className="mt-1 text-sm text-zinc-600">
+              Comprovante simples do dinheiro. Tem gerador grátis no site, sem
+              cadastro.
+            </p>
+          </li>
+          <li className="rounded-2xl border border-zinc-200 p-5">
+            <h3 className="font-semibold">IPVA e multas na venda</h3>
+            <p className="mt-1 text-sm text-zinc-600">
+              Quanto do IPVA do ano ainda resta e se há multa. A calculadora
+              grátis ajuda a acertar no contrato.
+            </p>
+          </li>
+        </ul>
       </section>
 
       <section id="beneficios" className="mx-auto max-w-5xl px-4 pb-16">
@@ -126,28 +238,13 @@ export default function Home() {
 
       <section id="faq" className="mx-auto max-w-3xl px-4 py-16">
         <h2 className="mb-6 text-center text-2xl font-semibold">Dúvidas</h2>
-        <dl className="space-y-4 text-sm">
-          <div>
-            <dt className="font-semibold">Substitui a transferência no DETRAN?</dt>
-            <dd className="mt-1 text-zinc-600">
-              Não. O contrato registra a venda. A transferência no DETRAN continua
-              obrigatória, em geral em até 30 dias.
-            </dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Tem validade jurídica?</dt>
-            <dd className="mt-1 text-zinc-600">
-              Sim. É um contrato particular, com base no Código Civil e no CTB.
-              A assinatura no site segue a MP 2.200-2/2001.
-            </dd>
-          </div>
-          <div>
-            <dt className="font-semibold">Dá para assinar pelo site?</dt>
-            <dd className="mt-1 text-zinc-600">
-              Sim. Depois do pagamento, comprador e vendedor assinam pelo celular,
-              no próprio ContratoCar.
-            </dd>
-          </div>
+        <dl className="space-y-6 text-sm">
+          {faq.map((item) => (
+            <div key={item.q}>
+              <dt className="font-semibold">{item.q}</dt>
+              <dd className="mt-1 text-zinc-600">{item.a}</dd>
+            </div>
+          ))}
         </dl>
       </section>
     </div>
