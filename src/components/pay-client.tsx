@@ -1,25 +1,9 @@
 "use client";
 
 import { useAuth } from "@/components/auth-provider";
-import { EsignChoiceCards } from "@/components/esign-choice";
 import { MpCheckout } from "@/components/mp-checkout";
 import { formatBRL } from "@/lib/money";
-import { emptyContract, PRICE_BRL, type ContractData, type EsignChoice } from "@/lib/types";
-import { useEffect, useState } from "react";
-
-function readDraft(): ContractData {
-  try {
-    const raw = sessionStorage.getItem("contratocar-contract");
-    if (!raw) return emptyContract();
-    return { ...emptyContract(), ...(JSON.parse(raw) as ContractData) };
-  } catch {
-    return emptyContract();
-  }
-}
-
-function writeDraft(next: ContractData) {
-  sessionStorage.setItem("contratocar-contract", JSON.stringify(next));
-}
+import { PRICE_BRL } from "@/lib/types";
 
 export function PayClient({
   name,
@@ -31,17 +15,7 @@ export function PayClient({
   status: string | null;
 }) {
   const { user, idToken } = useAuth();
-  const [wantEsign, setWantEsign] = useState<EsignChoice>("");
-  const [tried, setTried] = useState(false);
-
-  useEffect(() => {
-    setWantEsign(readDraft().wantEsign);
-  }, []);
-
-  function choose(next: EsignChoice) {
-    setWantEsign(next);
-    writeDraft({ ...readDraft(), wantEsign: next });
-  }
+  const first = name.split(" ")[0];
 
   async function authHeader() {
     let token = await idToken();
@@ -56,29 +30,45 @@ export function PayClient({
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
-      <div className="grid gap-10 lg:grid-cols-[1fr_24rem]">
+      <div className="grid gap-10 lg:grid-cols-[1fr_24rem] lg:items-start">
         <div>
-          <p className="text-sm text-zinc-500">
-            Olá, {name.split(" ")[0]}
-            {email ? ` (${email})` : ""}
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight">
-            Pague para emitir o contrato
+          <p className="text-sm text-zinc-500">Olá, {first}</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+            Seu contrato está pronto
           </h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            PIX ou cartão, sem sair desta página.
+          <p className="mt-3 max-w-lg text-base text-zinc-600">
+            Você está a um passo de deixar a compra e venda do veículo
+            combinada por escrito, com as regras claras para os dois lados.
           </p>
-          <div className="mt-8">
-            <EsignChoiceCards value={wantEsign} onChange={choose} />
-          </div>
+          <p className="mt-4 max-w-lg text-sm text-zinc-600">
+            Faça como milhares de pessoas que já usaram o ContratoCar e
+            fecharam o negócio com mais tranquilidade.
+          </p>
+          <ul className="mt-8 grid gap-3 text-sm text-zinc-700">
+            <li className="flex gap-3">
+              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-100 text-xs text-emerald-700">
+                ✓
+              </span>
+              Rascunho preenchido e prévia do contrato pronta.
+            </li>
+            <li className="flex gap-3">
+              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-100 text-xs text-emerald-700">
+                ✓
+              </span>
+              Depois do pagamento você completa chassi, RENAVAM e endereço,
+              se ainda faltar.
+            </li>
+            <li className="flex gap-3">
+              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-violet-100 text-xs font-medium text-violet-800">
+                3
+              </span>
+              PIX ou cartão nesta página. Sem custo extra pela assinatura
+              eletrônica, se você já escolheu usá-la.
+            </li>
+          </ul>
           {status === "falhou" && (
             <p className="mt-4 text-sm text-amber-700">
               O pagamento não foi concluído. Você pode tentar de novo.
-            </p>
-          )}
-          {tried && wantEsign !== "yes" && wantEsign !== "no" && (
-            <p className="mt-4 text-sm text-amber-700">
-              Escolha se vai assinar pelo site, antes de pagar.
             </p>
           )}
         </div>
@@ -94,8 +84,8 @@ export function PayClient({
               amount={PRICE_BRL}
               email={email}
               authHeader={authHeader}
-              blocked={wantEsign !== "yes" && wantEsign !== "no"}
-              onBlocked={() => setTried(true)}
+              blocked={false}
+              onBlocked={() => undefined}
             />
           </div>
         </div>
