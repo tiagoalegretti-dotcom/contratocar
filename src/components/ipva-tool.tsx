@@ -50,7 +50,8 @@ export function IpvaTool() {
       </h1>
       <p className="mt-2 text-sm text-zinc-600">
         Estime quanto do IPVA do ano ainda resta na data da venda, e some
-        multas se quiser. Confira o valor oficial no DETRAN do seu estado.
+        multas se quiser. Confira o valor oficial no app ou no site do seu
+        estado.
       </p>
 
       <div className="mt-6 grid gap-3">

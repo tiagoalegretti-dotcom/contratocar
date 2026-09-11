@@ -177,8 +177,8 @@ export function buildClauses(data: ContractData): Clause[] {
       body: `A entrega do veículo ocorrerá em ${blank(data.deliveryPlace, "local a combinar")}, na data de ${blank(data.deliveryDate, "data a combinar")}. A posse transmite-se com a entrega, nos termos dos arts. 481 e seguintes do Código Civil.`,
     },
     {
-      title: "DA TRANSFERÊNCIA NO DETRAN",
-      body: `O(A) COMPRADOR(A) obriga-se a promover a transferência de propriedade junto ao órgão de trânsito competente no prazo de ${blank(data.transferDays)} dias, conforme o Código de Trânsito Brasileiro. As despesas de transferência correm por conta do(a) COMPRADOR(A), salvo acordo escrito em contrário.`,
+      title: "DA TRANSFERÊNCIA",
+      body: `O(A) COMPRADOR(A) obriga-se a promover a transferência de propriedade junto ao órgão de trânsito competente no prazo de ${blank(data.transferDays)} dias, inclusive pelos canais digitais oficiais, conforme o Código de Trânsito Brasileiro. As despesas de transferência correm por conta do(a) COMPRADOR(A), salvo acordo escrito em contrário.`,
     },
     {
       title: "DOS DÉBITOS E MULTAS",
@@ -194,7 +194,7 @@ export function buildClauses(data: ContractData): Clause[] {
     },
     {
       title: "DAS OBRIGAÇÕES",
-      body: "O(A) VENDEDOR(A) entregará o veículo e a documentação necessária à transferência. O(A) COMPRADOR(A) pagará o preço no modo ajustado e providenciará o ATPV-e/comunicação de venda e o registro no DETRAN.",
+      body: "O(A) VENDEDOR(A) entregará o veículo e a documentação necessária à transferência. O(A) COMPRADOR(A) pagará o preço no modo ajustado e providenciará a transferência de propriedade e a comunicação de venda junto ao órgão de trânsito, inclusive pelos canais digitais oficiais (ATPV-e / aplicativo do governo), no prazo legal.",
     },
     {
       title: "DA MULTA",

@@ -7,7 +7,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { usePathname } from "next/navigation";
 import type { User } from "firebase/auth";
 
 type AuthCtx = {
@@ -21,26 +20,18 @@ type AuthCtx = {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
-function needsAuth(path: string) {
-  return path === "/entrar" || path === "/pagar" || path === "/pago";
-}
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const path = usePathname() ?? "";
-  const authRoute = needsAuth(path);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(authRoute);
+  const [loading, setLoading] = useState(true);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!authRoute) {
-      setLoading(false);
-      return;
-    }
     let unsub: (() => void) | undefined;
     let cancelled = false;
     (async () => {
-      const { firebaseReady, getFirebaseAuth } = await import("@/lib/firebase");
+      const { firebaseReady, getFirebaseAuth, googleProvider } = await import(
+        "@/lib/firebase"
+      );
       if (cancelled) return;
       setReady(firebaseReady());
       const auth = getFirebaseAuth();
@@ -48,6 +39,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
         return;
       }
+      try {
+        const { getRedirectResult } = await import("firebase/auth");
+        await getRedirectResult(auth);
+      } catch {
+        /* popup ou redirect cancelado */
+      }
+      if (cancelled) return;
       unsub = auth.onAuthStateChanged((next) => {
         setUser(next);
         setLoading(false);
@@ -57,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
       unsub?.();
     };
-  }, [authRoute]);
+  }, []);
 
   const value = useMemo<AuthCtx>(
     () => ({
@@ -68,8 +66,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { getFirebaseAuth, googleProvider } = await import("@/lib/firebase");
         const auth = getFirebaseAuth();
         if (!auth) throw new Error("Firebase não configurado");
-        const { signInWithPopup } = await import("firebase/auth");
-        await signInWithPopup(auth, googleProvider);
+        const { signInWithPopup, signInWithRedirect } = await import("firebase/auth");
+        try {
+          await signInWithPopup(auth, googleProvider);
+        } catch {
+          await signInWithRedirect(auth, googleProvider);
+        }
       },
       async signOut() {
         const { getFirebaseAuth } = await import("@/lib/firebase");
@@ -93,4 +95,13 @@ export function useAuth() {
   const ctx = useContext(Ctx);
   if (!ctx) throw new Error("useAuth precisa do AuthProvider");
   return ctx;
+}
+
+export function afterLoginPath() {
+  try {
+    if (sessionStorage.getItem("contratocar-checkout")) return "/pagar";
+  } catch {
+    /* ignore */
+  }
+  return "/conta";
 }

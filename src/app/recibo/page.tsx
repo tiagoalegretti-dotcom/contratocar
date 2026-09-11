@@ -5,7 +5,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Recibo de venda de veículo grátis",
   description:
-    "Gere um recibo de compra e venda de carro na hora. Grátis, sem cadastro. Não substitui o contrato nem a transferência no DETRAN.",
+    "Gere um recibo de compra e venda de carro na hora. Grátis, sem cadastro. Não substitui o contrato nem a transferência no app do governo.",
   alternates: { canonical: "/recibo" },
 };
 

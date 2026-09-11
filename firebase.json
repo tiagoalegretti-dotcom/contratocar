@@ -6,5 +6,11 @@
         "supportEmail": "tiagoalegretti@gmail.com"
       }
     }
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "southamerica-east1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
   }
 }

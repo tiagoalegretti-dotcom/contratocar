@@ -2,6 +2,8 @@
 
 import { ContractPreview } from "@/components/contract-preview";
 import { Field, inputClass as input } from "@/components/form-ui";
+import { useAuth } from "@/components/auth-provider";
+import { saveContract } from "@/lib/contracts";
 import { emptyContract, type ContractData } from "@/lib/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -14,12 +16,21 @@ export function Wizard() {
   const [data, setData] = useState<ContractData>(emptyContract);
   const [finishing, setFinishing] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
   const set = <K extends keyof ContractData>(k: K, v: ContractData[K]) =>
     setData((d) => ({ ...d, [k]: v }));
 
-  function finish() {
+  async function finish() {
     setFinishing(true);
+    const id = crypto.randomUUID();
     sessionStorage.setItem("contratocar-contract", JSON.stringify(data));
+    sessionStorage.setItem("contratocar-contract-id", id);
+    sessionStorage.setItem("contratocar-checkout", "1");
+    if (user) {
+      await saveContract(user.uid, { id, data, paid: false });
+      router.push("/pagar");
+      return;
+    }
     router.push("/entrar");
   }
 

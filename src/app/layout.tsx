@@ -6,10 +6,18 @@ import "./globals.css";
 
 const title = "Contrato de compra e venda de veículo";
 const description =
-  "Gere o contrato de compra e venda de carro, moto ou caminhão. Para quem acabou de fechar o negócio e precisa do documento para a transferência no DETRAN.";
+  "Gere o contrato de compra e venda de carro, moto ou caminhão. Preencha, assine pelo celular e baixe o documento.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl()),
+  metadataBase: new URL(
+    (() => {
+      try {
+        return siteUrl();
+      } catch {
+        return "https://contratocar.vercel.app";
+      }
+    })(),
+  ),
   title: {
     default: `${title} | ContratoCar`,
     template: "%s | ContratoCar",

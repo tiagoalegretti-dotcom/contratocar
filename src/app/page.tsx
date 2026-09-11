@@ -4,11 +4,11 @@ import { siteUrl } from "@/lib/site";
 const faq = [
   {
     q: "Como fazer um contrato de compra e venda de carro?",
-    a: "Reúna os dados das partes e do veículo (placa, chassi, RENAVAM, preço). No ContratoCar você preenche, completa depois do pagamento, assina pelo celular e baixa o arquivo. A transferência no DETRAN continua sendo outro passo.",
+    a: "Reúna os dados das partes e do veículo (placa, chassi, RENAVAM, preço). No ContratoCar você preenche, completa depois do pagamento, assina pelo celular e baixa o arquivo. A transferência de propriedade é outro passo, feito no app do governo.",
   },
   {
-    q: "Preciso de contrato para transferir no DETRAN?",
-    a: "O DETRAN pede o CRV/ATPV-e e a comunicação de venda. O contrato particular não substitui isso, mas registra o negócio: preço, débitos, entrega e quem paga o quê, se houver briga depois.",
+    q: "Preciso de contrato para transferir o veículo?",
+    a: "A transferência e a comunicação de venda saem no app do gov.br (Carteira Digital de Trânsito), com ATPV-e. O contrato particular não substitui isso. Ele registra o negócio: preço, débitos, entrega e quem paga o quê, se houver briga depois.",
   },
   {
     q: "Recibo de venda substitui o contrato?",
@@ -16,7 +16,7 @@ const faq = [
   },
   {
     q: "Qual o prazo para transferir o veículo depois da venda?",
-    a: "Pelo Código de Trânsito, o comprador em geral tem 30 dias para transferir. O vendedor deve fazer a comunicação de venda para não continuar responsável por multa e IPVA.",
+    a: "Pelo Código de Trânsito, o comprador em geral tem 30 dias. O vendedor deve comunicar a venda no app do governo para não continuar responsável por multa e IPVA.",
   },
   {
     q: "O contrato vale sem cartório?",
@@ -66,9 +66,8 @@ export default function Home() {
           <span className="text-violet-600">de veículo</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-base text-zinc-600 sm:text-lg">
-          Para quem acabou de fechar o negócio e precisa do documento agora:
-          partes, placa, preço, débitos e assinatura no celular, antes de ir ao
-          DETRAN.
+          Nunca foi tão fácil e rápido assinar o contrato de compra ou venda de
+          um veículo.
         </p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
@@ -138,10 +137,11 @@ export default function Home() {
             </p>
           </li>
           <li className="rounded-2xl border border-zinc-200 p-5">
-            <h3 className="font-semibold">Transferência no DETRAN</h3>
+            <h3 className="font-semibold">Transferência no app do gov</h3>
             <p className="mt-1 text-sm text-zinc-600">
-              Prazo, em geral, de 30 dias. O contrato não faz a transferência,
-              mas deixa claro quem paga as despesas.
+              Comunicação de venda e ATPV-e saem na Carteira Digital de Trânsito.
+              O contrato não faz essa etapa, mas deixa claro o acordo entre as
+              partes.
             </p>
           </li>
           <li className="rounded-2xl border border-zinc-200 p-5">
@@ -224,8 +224,8 @@ export default function Home() {
           <p className="text-sm text-violet-300">Carro, moto ou caminhão</p>
           <p className="mt-2 text-3xl font-semibold">Contrato com os seus dados</p>
           <p className="mt-2 text-sm text-zinc-400">
-            Inclui transferência no DETRAN, débitos, defeitos e foro. Depois de
-            pronto, as partes assinam pelo site.
+            Inclui preço, débitos, defeitos, garantia e foro. Depois de pronto,
+            as partes assinam pelo site.
           </p>
           <Link
             href="/contrato"

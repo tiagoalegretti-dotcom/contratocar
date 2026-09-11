@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@/components/auth-provider";
+import { afterLoginPath, useAuth } from "@/components/auth-provider";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -34,7 +34,7 @@ export default function EntrarPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) router.replace("/pagar");
+    if (!loading && user) router.replace(afterLoginPath());
   }, [loading, user, router]);
 
   async function onGoogle() {
@@ -42,7 +42,7 @@ export default function EntrarPage() {
     setBusy(true);
     try {
       await signInGoogle();
-      router.replace("/pagar");
+      router.replace(afterLoginPath());
     } catch {
       setError("Não deu para entrar com o Google. Tente de novo.");
     } finally {

@@ -1,3 +1,4 @@
+import { AccountLinks } from "@/components/account-links";
 import { BrandLockup } from "@/components/logo";
 import Link from "next/link";
 
@@ -14,12 +15,15 @@ export function Header() {
           <Link href="/recibo">Recibo</Link>
           <Link href="/calculadora-ipva">IPVA</Link>
         </nav>
-        <Link
-          href="/contrato"
-          className="inline-flex min-h-11 items-center rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700"
-        >
-          Gerar contrato
-        </Link>
+        <div className="flex items-center gap-3">
+          <AccountLinks />
+          <Link
+            href="/contrato"
+            className="inline-flex min-h-11 items-center rounded-full bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700"
+          >
+            Gerar contrato
+          </Link>
+        </div>
       </div>
     </header>
   );

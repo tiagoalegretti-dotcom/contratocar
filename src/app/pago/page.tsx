@@ -2,11 +2,14 @@
 
 import { CompleteDetails } from "@/components/complete-details";
 import { PaidDocument } from "@/components/document-editor";
+import { useAuth } from "@/components/auth-provider";
+import { saveContract } from "@/lib/contracts";
 import { emptyContract, type ContractData } from "@/lib/types";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 function PaidInner() {
+  const { user } = useAuth();
   const params = useSearchParams();
   const paymentId = params.get("payment_id") || params.get("collection_id");
   const [data, setData] = useState<ContractData>(emptyContract);
@@ -36,7 +39,10 @@ function PaidInner() {
       .then((r) => r.json())
       .then((json: { approved?: boolean; status?: string }) => {
         if (!alive) return;
-        if (json.approved) setPay("ok");
+        if (json.approved) {
+          setPay("ok");
+          sessionStorage.removeItem("contratocar-checkout");
+        }
         else if (json.status === "pending" || json.status === "in_process") setPay("wait");
         else setPay("fail");
       })
@@ -48,9 +54,35 @@ function PaidInner() {
     };
   }, [paymentId]);
 
+  useEffect(() => {
+    if (pay !== "ok" || !ready || !user) return;
+    const id = sessionStorage.getItem("contratocar-contract-id") || crypto.randomUUID();
+    sessionStorage.setItem("contratocar-contract-id", id);
+    void saveContract(user.uid, {
+      id,
+      data,
+      paid: true,
+      paymentId: paymentId || undefined,
+    });
+  }, [pay, ready, user, data, paymentId]);
+
+  function persistPaid(next: ContractData) {
+    const id = sessionStorage.getItem("contratocar-contract-id") || crypto.randomUUID();
+    sessionStorage.setItem("contratocar-contract-id", id);
+    sessionStorage.setItem("contratocar-contract", JSON.stringify(next));
+    if (user) {
+      void saveContract(user.uid, {
+        id,
+        data: next,
+        paid: true,
+        paymentId: paymentId || undefined,
+      });
+    }
+  }
+
   function goToDoc(next: ContractData) {
     setData(next);
-    sessionStorage.setItem("contratocar-contract", JSON.stringify(next));
+    persistPaid(next);
     sessionStorage.removeItem("contratocar-edited");
     setPhase("doc");
   }

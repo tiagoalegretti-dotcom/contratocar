@@ -85,8 +85,9 @@ export function ReciboTool() {
           do veículo {vehicle || "________________"}, placa {plate || "________________"}.
         </p>
         <p className="mt-4">
-          O pagamento quita o valor combinado nesta data. A transferência no DETRAN
-          fica a cargo do comprador, no prazo legal.
+          O pagamento quita o valor combinado nesta data. A transferência de
+          propriedade fica a cargo do comprador, no prazo legal, pelo app do
+          governo.
         </p>
         <p className="mt-8">
           {city || "________________"}, {dateLabel || "__/__/____"}.

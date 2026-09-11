@@ -1,5 +1,6 @@
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const config = {
   apiKey:
@@ -14,6 +15,10 @@ const config = {
     "1:936684108269:web:dc6e9ecc217ebd3ba20fe4",
 };
 
+function app(): FirebaseApp {
+  return getApps()[0] ?? initializeApp(config);
+}
+
 export function firebaseReady() {
   return Boolean(
     config.apiKey && config.authDomain && config.projectId && config.appId,
@@ -22,8 +27,12 @@ export function firebaseReady() {
 
 export function getFirebaseAuth() {
   if (!firebaseReady()) return null;
-  const app = getApps()[0] ?? initializeApp(config);
-  return getAuth(app);
+  return getAuth(app());
+}
+
+export function getDb() {
+  if (!firebaseReady()) return null;
+  return getFirestore(app());
 }
 
 export const googleProvider = new GoogleAuthProvider();
