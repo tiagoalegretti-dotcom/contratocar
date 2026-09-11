@@ -1,4 +1,4 @@
-import { createCheckoutPreference, mpReady } from "@/lib/mercadopago";
+import { checkoutUrl, createCheckoutPreference, mpIsTest, mpReady } from "@/lib/mercadopago";
 import { userFromRequest } from "@/lib/verify-user";
 
 export async function POST(req: Request) {
@@ -21,11 +21,15 @@ export async function POST(req: Request) {
       name: user.name,
       reference: `${user.uid}:${crypto.randomUUID()}`,
     });
-    const url = preference.init_point || preference.sandbox_init_point;
+    const url = checkoutUrl(preference);
     if (!url) {
       return Response.json({ error: "O Mercado Pago não devolveu o link." }, { status: 502 });
     }
-    return Response.json({ url, preferenceId: preference.id });
+    return Response.json({
+      url,
+      preferenceId: preference.id,
+      test: mpIsTest(),
+    });
   } catch (err) {
     console.error(err);
     return Response.json(

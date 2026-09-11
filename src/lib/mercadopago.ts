@@ -9,6 +9,20 @@ export function mpReady() {
   return Boolean(mpToken());
 }
 
+export function mpIsTest() {
+  return mpToken().startsWith("TEST-");
+}
+
+export function checkoutUrl(preference: {
+  init_point?: string | null;
+  sandbox_init_point?: string | null;
+}) {
+  if (mpIsTest()) {
+    return preference.sandbox_init_point || preference.init_point || "";
+  }
+  return preference.init_point || preference.sandbox_init_point || "";
+}
+
 function client() {
   return new MercadoPagoConfig({ accessToken: mpToken() });
 }
