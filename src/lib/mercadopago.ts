@@ -5,8 +5,20 @@ export function mpToken() {
   return process.env.MP_ACCESS_TOKEN?.trim() ?? "";
 }
 
+export function mpPublicKey() {
+  return (
+    process.env.MP_PUBLIC_KEY?.trim() ||
+    process.env.NEXT_PUBLIC_MP_PUBLIC_KEY?.trim() ||
+    ""
+  );
+}
+
 export function mpReady() {
   return Boolean(mpToken());
+}
+
+export function mpBrickReady() {
+  return Boolean(mpToken() && mpPublicKey());
 }
 
 export function mpIsTest() {
@@ -82,6 +94,57 @@ export async function createCheckoutPreference(params: {
       : body,
   });
   return created;
+}
+
+export async function createSitePayment(params: {
+  formData: Record<string, unknown>;
+  email: string;
+  name: string;
+  reference: string;
+}) {
+  const payment = new Payment(client());
+  const url = appUrl();
+  const incoming = params.formData ?? {};
+  const payerIn =
+    incoming.payer && typeof incoming.payer === "object"
+      ? (incoming.payer as Record<string, unknown>)
+      : {};
+  const body: Record<string, unknown> = {
+    ...incoming,
+    transaction_amount: PRICE_BRL,
+    description: "ContratoCar",
+    statement_descriptor: "CONTRATOCAR",
+    external_reference: params.reference,
+    metadata: { product: "contratocar", uid: params.reference.split(":")[0] },
+    payer: {
+      ...payerIn,
+      email: (typeof payerIn.email === "string" && payerIn.email) || params.email,
+      first_name:
+        (typeof payerIn.first_name === "string" && payerIn.first_name) ||
+        params.name,
+    },
+  };
+  if (url.startsWith("https://")) {
+    body.notification_url = `${url}/api/mercadopago/webhook`;
+  }
+  const created = await payment.create({
+    body: body as never,
+    requestOptions: { idempotencyKey: crypto.randomUUID() },
+  });
+  const pix = created.point_of_interaction?.transaction_data;
+  return {
+    id: String(created.id ?? ""),
+    status: created.status ?? "",
+    statusDetail: created.status_detail ?? "",
+    pix:
+      pix?.qr_code
+        ? {
+            qrCode: pix.qr_code,
+            qrBase64: pix.qr_code_base64 ?? "",
+            ticketUrl: pix.ticket_url ?? "",
+          }
+        : null,
+  };
 }
 
 export async function getPayment(id: string) {

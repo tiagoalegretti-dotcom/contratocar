@@ -1,4 +1,4 @@
-import { checkoutUrl, createCheckoutPreference, mpIsTest, mpReady } from "@/lib/mercadopago";
+import { createSitePayment, mpBrickReady } from "@/lib/mercadopago";
 import { userFromRequest } from "@/lib/verify-user";
 
 export async function POST(req: Request) {
@@ -6,35 +6,35 @@ export async function POST(req: Request) {
   if (!user) {
     return Response.json({ error: "Faça login para continuar." }, { status: 401 });
   }
-  if (!mpReady()) {
+  if (!mpBrickReady()) {
     return Response.json(
       {
         error:
-          "Falta o token do Mercado Pago. Coloque MP_ACCESS_TOKEN no .env.local e na Vercel.",
+          "Falta configurar o Mercado Pago. Coloque MP_ACCESS_TOKEN e MP_PUBLIC_KEY na Vercel.",
       },
       { status: 503 },
     );
   }
+  let formData: Record<string, unknown> = {};
   try {
-    const preference = await createCheckoutPreference({
+    formData = (await req.json()) as Record<string, unknown>;
+  } catch {
+    return Response.json({ error: "Dados de pagamento inválidos." }, { status: 400 });
+  }
+  try {
+    const result = await createSitePayment({
+      formData,
       email: user.email,
       name: user.name,
       reference: `${user.uid}:${crypto.randomUUID()}`,
     });
-    const url = checkoutUrl(preference);
-    if (!url) {
-      return Response.json({ error: "O Mercado Pago não devolveu o link." }, { status: 502 });
-    }
-    return Response.json({
-      url,
-      preferenceId: preference.id,
-      test: mpIsTest(),
-    });
+    return Response.json(result);
   } catch (err) {
     console.error(err);
-    return Response.json(
-      { error: "Não deu para criar o pagamento no Mercado Pago." },
-      { status: 502 },
-    );
+    const message =
+      err && typeof err === "object" && "message" in err
+        ? String((err as { message: string }).message)
+        : "Não deu para criar o pagamento no Mercado Pago.";
+    return Response.json({ error: message }, { status: 502 });
   }
 }
