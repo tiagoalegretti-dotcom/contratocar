@@ -1,7 +1,16 @@
-export type PersonType = "pf" | "pj";
+export type PersonType = "pf" | "pf2" | "pj";
 export type VehicleKind = "carro" | "moto" | "caminhao";
 export type VehicleCondition = "usado" | "zero";
-export type PaymentMethod = "pix" | "transferencia" | "dinheiro" | "parcelado";
+export type PaymentMethod = "" | "avista" | "sinal" | "parcelado" | "troca";
+export type PayChannel = "" | "pix" | "transferencia" | "dinheiro";
+
+export type FinancingStatus = "" | "none" | "paid_with_sale" | "seller_pays_before";
+export type DebtsStatus = "" | "none" | "listed";
+export type DefectsStatus = "" | "none" | "listed";
+export type InspectionStatus = "" | "done" | "not_done";
+export type AccessoriesStatus = "" | "stock" | "extras";
+export type WarrantyStatus = "" | "as_is" | "legal";
+export type PenaltyKind = "" | "10" | "20" | "custom_percent" | "fixed" | "none";
 
 export type Party = {
   type: PersonType;
@@ -11,6 +20,11 @@ export type Party = {
   nationality: string;
   maritalStatus: string;
   occupation: string;
+  name2: string;
+  document2: string;
+  rg2: string;
+  maritalStatus2: string;
+  occupation2: string;
   email: string;
   phone: string;
   zip: string;
@@ -38,11 +52,24 @@ export type ContractData = {
   fuel: string;
   price: string;
   paymentMethod: PaymentMethod;
+  payChannel: PayChannel;
   installments: string;
+  depositAmount: string;
+  tradeVehicle: string;
+  tradeDifference: string;
   deliveryDate: string;
   deliveryPlace: string;
+  financing: FinancingStatus;
+  debtsStatus: DebtsStatus;
   knownDefects: string;
   debts: string;
+  defectsStatus: DefectsStatus;
+  inspection: InspectionStatus;
+  accessoriesStatus: AccessoriesStatus;
+  accessoriesNote: string;
+  warranty: WarrantyStatus;
+  penaltyKind: PenaltyKind;
+  penaltyValue: string;
   transferDays: string;
   cityForum: string;
   stateForum: string;
@@ -56,6 +83,11 @@ export const emptyParty = (): Party => ({
   nationality: "brasileiro(a)",
   maritalStatus: "",
   occupation: "",
+  name2: "",
+  document2: "",
+  rg2: "",
+  maritalStatus2: "",
+  occupation2: "",
   email: "",
   phone: "",
   zip: "",
@@ -82,12 +114,25 @@ export const emptyContract = (): ContractData => ({
   km: "",
   fuel: "flex",
   price: "",
-  paymentMethod: "pix",
+  paymentMethod: "",
+  payChannel: "",
   installments: "",
+  depositAmount: "",
+  tradeVehicle: "",
+  tradeDifference: "",
   deliveryDate: "",
   deliveryPlace: "",
+  financing: "",
+  debtsStatus: "",
   knownDefects: "",
   debts: "",
+  defectsStatus: "",
+  inspection: "",
+  accessoriesStatus: "",
+  accessoriesNote: "",
+  warranty: "",
+  penaltyKind: "",
+  penaltyValue: "",
   transferDays: "30",
   cityForum: "",
   stateForum: "",

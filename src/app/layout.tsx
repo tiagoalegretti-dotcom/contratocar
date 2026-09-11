@@ -1,3 +1,4 @@
+import { AuthProvider } from "@/components/auth-provider";
 import { Footer, Header } from "@/components/chrome";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
@@ -23,9 +24,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className="h-full antialiased">
       <body className="flex min-h-full flex-col bg-white text-zinc-900">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { buildClauses, contractTitle } from "@/lib/contract";
+import { buildClauses, contractTitle, partyLabel } from "@/lib/contract";
 import type { ContractData } from "@/lib/types";
 import { useEffect, useRef } from "react";
 
@@ -73,12 +73,12 @@ export function ContractPreview({
             <div>
               <div className="mb-8 border-b border-zinc-400" />
               VENDEDOR(A)
-              <div className="mt-1 text-zinc-500">{data.seller.name || " "}</div>
+              <div className="mt-1 text-zinc-500">{partyLabel(data.seller) || " "}</div>
             </div>
             <div>
               <div className="mb-8 border-b border-zinc-400" />
               COMPRADOR(A)
-              <div className="mt-1 text-zinc-500">{data.buyer.name || " "}</div>
+              <div className="mt-1 text-zinc-500">{partyLabel(data.buyer) || " "}</div>
             </div>
           </div>
         </article>

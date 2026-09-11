@@ -1,205 +1,12 @@
 "use client";
 
 import { ContractPreview } from "@/components/contract-preview";
-import { emptyContract, type ContractData, type Party } from "@/lib/types";
-import { useMemo, useState } from "react";
+import { Field, inputClass as input } from "@/components/form-ui";
+import { emptyContract, type ContractData } from "@/lib/types";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const STEPS = [
-  "Negociação",
-  "Vendedor",
-  "Comprador",
-  "Veículo",
-  "Pagamento",
-  "Extras",
-];
-
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block text-sm">
-      <span className="mb-1.5 block font-medium text-zinc-700">{label}</span>
-      {children}
-    </label>
-  );
-}
-
-const input =
-  "min-h-12 w-full rounded-xl border border-zinc-200 bg-white px-3 text-base outline-none ring-violet-600/20 placeholder:text-zinc-400 focus:border-violet-500 focus:ring-4";
-
-function PartyFields({
-  party,
-  onChange,
-}: {
-  party: Party;
-  onChange: (p: Party) => void;
-}) {
-  const set = (k: keyof Party, v: string) => onChange({ ...party, [k]: v });
-
-  async function onZip(zip: string) {
-    set("zip", zip);
-    const n = zip.replace(/\D/g, "");
-    if (n.length !== 8) return;
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${n}/json/`);
-      const json = (await res.json()) as {
-        erro?: boolean;
-        logradouro?: string;
-        bairro?: string;
-        localidade?: string;
-        uf?: string;
-      };
-      if (json.erro) return;
-      onChange({
-        ...party,
-        zip,
-        street: json.logradouro || party.street,
-        neighborhood: json.bairro || party.neighborhood,
-        city: json.localidade || party.city,
-        state: json.uf || party.state,
-      });
-    } catch {
-      /* ignore */
-    }
-  }
-
-  return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      <Field label="Pessoa">
-        <select
-          className={input}
-          value={party.type}
-          onChange={(e) =>
-            onChange({ ...party, type: e.target.value as Party["type"] })
-          }
-        >
-          <option value="pf">Pessoa física</option>
-          <option value="pj">Pessoa jurídica</option>
-        </select>
-      </Field>
-      <Field label={party.type === "pj" ? "Razão social" : "Nome completo"}>
-        <input
-          className={input}
-          autoComplete="name"
-          autoCapitalize="words"
-          value={party.name}
-          onChange={(e) => set("name", e.target.value)}
-        />
-      </Field>
-      <Field label={party.type === "pj" ? "CNPJ" : "CPF"}>
-        <input
-          className={input}
-          inputMode="numeric"
-          autoComplete="off"
-          value={party.document}
-          onChange={(e) => set("document", e.target.value)}
-        />
-      </Field>
-      {party.type === "pf" && (
-        <>
-          <Field label="RG">
-            <input
-              className={input}
-              value={party.rg}
-              onChange={(e) => set("rg", e.target.value)}
-            />
-          </Field>
-          <Field label="Estado civil">
-            <input
-              className={input}
-              value={party.maritalStatus}
-              onChange={(e) => set("maritalStatus", e.target.value)}
-            />
-          </Field>
-          <Field label="Profissão">
-            <input
-              className={input}
-              autoComplete="organization-title"
-              value={party.occupation}
-              onChange={(e) => set("occupation", e.target.value)}
-            />
-          </Field>
-        </>
-      )}
-      <Field label="E-mail">
-        <input
-          className={input}
-          type="email"
-          autoComplete="email"
-          inputMode="email"
-          value={party.email}
-          onChange={(e) => set("email", e.target.value)}
-        />
-      </Field>
-      <Field label="Telefone">
-        <input
-          className={input}
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          value={party.phone}
-          onChange={(e) => set("phone", e.target.value)}
-        />
-      </Field>
-      <Field label="CEP">
-        <input
-          className={input}
-          inputMode="numeric"
-          autoComplete="postal-code"
-          value={party.zip}
-          onChange={(e) => onZip(e.target.value)}
-        />
-      </Field>
-      <Field label="Rua">
-        <input
-          className={input}
-          autoComplete="address-line1"
-          value={party.street}
-          onChange={(e) => set("street", e.target.value)}
-        />
-      </Field>
-      <Field label="Número">
-        <input
-          className={input}
-          inputMode="numeric"
-          autoComplete="address-line2"
-          value={party.number}
-          onChange={(e) => set("number", e.target.value)}
-        />
-      </Field>
-      <Field label="Bairro">
-        <input
-          className={input}
-          value={party.neighborhood}
-          onChange={(e) => set("neighborhood", e.target.value)}
-        />
-      </Field>
-      <Field label="Cidade">
-        <input
-          className={input}
-          autoComplete="address-level2"
-          value={party.city}
-          onChange={(e) => set("city", e.target.value)}
-        />
-      </Field>
-      <Field label="UF">
-        <input
-          className={input}
-          maxLength={2}
-          autoComplete="address-level1"
-          autoCapitalize="characters"
-          value={party.state}
-          onChange={(e) => set("state", e.target.value.toUpperCase())}
-        />
-      </Field>
-    </div>
-  );
-}
+const STEPS = ["Veículo", "Vendedor", "Comprador", "Valor"];
 
 export function Wizard() {
   const [step, setStep] = useState(0);
@@ -210,27 +17,42 @@ export function Wizard() {
   const set = <K extends keyof ContractData>(k: K, v: ContractData[K]) =>
     setData((d) => ({ ...d, [k]: v }));
 
-  const canFinish = useMemo(() => {
-    return Boolean(
-      data.seller.name &&
-        data.seller.document &&
-        data.buyer.name &&
-        data.buyer.document &&
-        data.brand &&
-        data.model &&
-        data.plate &&
-        data.price,
-    );
-  }, [data]);
-
-  async function finish() {
+  function finish() {
     setFinishing(true);
     sessionStorage.setItem("contratocar-contract", JSON.stringify(data));
     router.push("/entrar");
   }
 
+  const nav = (
+    <>
+      <button
+        className="min-h-12 rounded-full px-4 text-base text-zinc-600 disabled:opacity-40"
+        disabled={step === 0}
+        onClick={() => setStep((s) => s - 1)}
+      >
+        Voltar
+      </button>
+      {step < STEPS.length - 1 ? (
+        <button
+          className="min-h-12 flex-1 rounded-full bg-violet-600 px-5 text-base font-medium text-white lg:flex-none"
+          onClick={() => setStep((s) => s + 1)}
+        >
+          Continuar
+        </button>
+      ) : (
+        <button
+          disabled={finishing}
+          onClick={finish}
+          className="min-h-12 flex-1 rounded-full bg-violet-600 px-5 text-base font-medium text-white disabled:opacity-40 lg:flex-none"
+        >
+          {finishing ? "Aguarde..." : "Finalizar"}
+        </button>
+      )}
+    </>
+  );
+
   return (
-    <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-24 pt-4 lg:px-6 lg:py-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:pb-6">
+    <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-24 pt-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:px-6 lg:py-6 lg:pb-6">
       <div className="lg:sticky lg:top-20 lg:self-start">
         <div className="mb-4 flex gap-2 lg:hidden">
           <button
@@ -257,7 +79,7 @@ export function Wizard() {
               <li key={s}>
                 <button
                   onClick={() => setStep(i)}
-            className={`min-h-11 whitespace-nowrap rounded-full px-3 ${
+                  className={`min-h-11 whitespace-nowrap rounded-full px-3 ${
                     i === step ? "bg-violet-600 text-white" : "bg-zinc-100"
                   }`}
                 >
@@ -268,9 +90,15 @@ export function Wizard() {
           </ol>
 
           <div className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
+            {step === STEPS.length - 1 && (
+              <p className="mb-4 text-sm text-zinc-500">
+                Pode seguir sem preencher. Depois do pagamento você completa todos
+                os dados do contrato.
+              </p>
+            )}
             {step === 0 && (
-              <div className="grid gap-3">
-                <Field label="Tipo de veículo">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Tipo">
                   <select
                     className={input}
                     value={data.vehicleKind}
@@ -295,167 +123,60 @@ export function Wizard() {
                     <option value="zero">Zero km</option>
                   </select>
                 </Field>
-              </div>
-            )}
-            {step === 1 && (
-              <PartyFields
-                party={data.seller}
-                onChange={(seller) => setData((d) => ({ ...d, seller }))}
-              />
-            )}
-            {step === 2 && (
-              <PartyFields
-                party={data.buyer}
-                onChange={(buyer) => setData((d) => ({ ...d, buyer }))}
-              />
-            )}
-            {step === 3 && (
-              <div className="grid gap-3 sm:grid-cols-2">
                 <Field label="Marca">
                   <input className={input} value={data.brand} onChange={(e) => set("brand", e.target.value)} />
                 </Field>
                 <Field label="Modelo">
                   <input className={input} value={data.model} onChange={(e) => set("model", e.target.value)} />
                 </Field>
-                <Field label="Ano fabricação">
-                  <input className={input} inputMode="numeric" maxLength={4} value={data.yearManufacture} onChange={(e) => set("yearManufacture", e.target.value)} />
-                </Field>
-                <Field label="Ano modelo">
-                  <input className={input} inputMode="numeric" maxLength={4} value={data.yearModel} onChange={(e) => set("yearModel", e.target.value)} />
-                </Field>
-                <Field label="Cor">
-                  <input className={input} value={data.color} onChange={(e) => set("color", e.target.value)} />
-                </Field>
-                <Field label="Combustível">
-                  <input className={input} value={data.fuel} onChange={(e) => set("fuel", e.target.value)} />
-                </Field>
                 <Field label="Placa">
-                  <input className={input} autoCapitalize="characters" value={data.plate} onChange={(e) => set("plate", e.target.value.toUpperCase())} />
-                </Field>
-                <Field label="Chassi">
-                  <input className={input} autoCapitalize="characters" value={data.chassis} onChange={(e) => set("chassis", e.target.value.toUpperCase())} />
-                </Field>
-                <Field label="RENAVAM">
-                  <input className={input} inputMode="numeric" value={data.renavam} onChange={(e) => set("renavam", e.target.value)} />
-                </Field>
-                <Field label="Quilometragem">
-                  <input className={input} inputMode="numeric" value={data.km} onChange={(e) => set("km", e.target.value)} />
-                </Field>
-              </div>
-            )}
-            {step === 4 && (
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Field label="Preço (R$)">
-                  <input className={input} inputMode="decimal" placeholder="45000,00" value={data.price} onChange={(e) => set("price", e.target.value)} />
-                </Field>
-                <Field label="Forma de pagamento">
-                  <select
+                  <input
                     className={input}
-                    value={data.paymentMethod}
-                    onChange={(e) =>
-                      set("paymentMethod", e.target.value as ContractData["paymentMethod"])
-                    }
-                  >
-                    <option value="pix">PIX</option>
-                    <option value="transferencia">Transferência</option>
-                    <option value="dinheiro">Dinheiro</option>
-                    <option value="parcelado">Parcelado</option>
-                  </select>
-                </Field>
-                {data.paymentMethod === "parcelado" && (
-                  <Field label="Parcelas">
-                    <input className={input} value={data.installments} onChange={(e) => set("installments", e.target.value)} />
-                  </Field>
-                )}
-                <Field label="Data da entrega">
-                  <input className={input} type="date" value={data.deliveryDate} onChange={(e) => set("deliveryDate", e.target.value)} />
-                </Field>
-                <Field label="Local da entrega">
-                  <input className={input} value={data.deliveryPlace} onChange={(e) => set("deliveryPlace", e.target.value)} />
+                    autoCapitalize="characters"
+                    value={data.plate}
+                    onChange={(e) => set("plate", e.target.value.toUpperCase())}
+                  />
                 </Field>
               </div>
             )}
-            {step === 5 && (
-              <div className="grid gap-3">
-                <Field label="Débitos conhecidos (IPVA, multa, financiamento)">
-                  <textarea className={`${input} min-h-20`} value={data.debts} onChange={(e) => set("debts", e.target.value)} />
+            {step === 1 && (
+              <MiniParty
+                question="Quem está vendendo o veículo?"
+                party={data.seller}
+                onChange={(seller) => setData((d) => ({ ...d, seller }))}
+              />
+            )}
+            {step === 2 && (
+              <MiniParty
+                question="Quem está comprando o veículo?"
+                party={data.buyer}
+                onChange={(buyer) => setData((d) => ({ ...d, buyer }))}
+              />
+            )}
+            {step === 3 && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Preço da venda (R$)">
+                  <input
+                    className={input}
+                    inputMode="decimal"
+                    placeholder="45000,00"
+                    value={data.price}
+                    onChange={(e) => set("price", e.target.value)}
+                  />
                 </Field>
-                <Field label="Defeitos conhecidos">
-                  <textarea className={`${input} min-h-20`} value={data.knownDefects} onChange={(e) => set("knownDefects", e.target.value)} />
-                </Field>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Field label="Prazo de transferência (dias)">
-                    <input className={input} value={data.transferDays} onChange={(e) => set("transferDays", e.target.value)} />
-                  </Field>
-                  <Field label="Cidade do foro">
-                    <input className={input} value={data.cityForum} onChange={(e) => set("cityForum", e.target.value)} />
-                  </Field>
-                  <Field label="UF do foro">
-                    <input className={input} maxLength={2} value={data.stateForum} onChange={(e) => set("stateForum", e.target.value.toUpperCase())} />
-                  </Field>
-                </div>
               </div>
             )}
 
             <div className="mt-5 hidden items-center justify-between gap-3 lg:flex">
-              <button
-                className="rounded-full px-4 py-2 text-sm text-zinc-600 disabled:opacity-40"
-                disabled={step === 0}
-                onClick={() => setStep((s) => s - 1)}
-              >
-                Voltar
-              </button>
-              {step < STEPS.length - 1 ? (
-                <button
-                  className="rounded-full bg-violet-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-violet-700"
-                  onClick={() => setStep((s) => s + 1)}
-                >
-                  Continuar
-                </button>
-              ) : (
-                <button
-                  disabled={!canFinish || finishing}
-                  onClick={finish}
-                  className="rounded-full bg-violet-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-violet-700 disabled:opacity-40"
-                >
-                  {finishing ? "Aguarde..." : "Finalizar"}
-                </button>
-              )}
+              {nav}
             </div>
-            {step === STEPS.length - 1 && !canFinish && (
-              <p className="mt-3 text-xs text-amber-700">
-                Preencha nome e documento das partes, marca, modelo, placa e preço para finalizar.
-              </p>
-            )}
           </div>
         </div>
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/95 p-3 backdrop-blur-md lg:hidden print:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
-          <button
-            className="min-h-12 rounded-full px-4 text-base text-zinc-600 disabled:opacity-40"
-            disabled={step === 0}
-            onClick={() => setStep((s) => s - 1)}
-          >
-            Voltar
-          </button>
-          {step < STEPS.length - 1 ? (
-            <button
-              className="min-h-12 flex-1 rounded-full bg-violet-600 px-5 text-base font-medium text-white"
-              onClick={() => setStep((s) => s + 1)}
-            >
-              Continuar
-            </button>
-          ) : (
-            <button
-              disabled={!canFinish || finishing}
-              onClick={finish}
-              className="min-h-12 flex-1 rounded-full bg-violet-600 px-5 text-base font-medium text-white disabled:opacity-40"
-            >
-              {finishing ? "Aguarde..." : "Finalizar"}
-            </button>
-          )}
+          {nav}
         </div>
       </div>
 
@@ -465,6 +186,139 @@ export function Wizard() {
         <div className="hidden lg:block">
           <ContractPreview data={data} locked />
         </div>
+      )}
+    </div>
+  );
+}
+
+function MiniParty({
+  question,
+  party,
+  onChange,
+}: {
+  question: string;
+  party: ContractData["seller"];
+  onChange: (p: ContractData["seller"]) => void;
+}) {
+  const kinds: {
+    id: ContractData["seller"]["type"];
+    title: string;
+    text: string;
+    icon: string;
+  }[] = [
+    {
+      id: "pf",
+      title: "Uma pessoa",
+      text: "Pessoa física, sozinha.",
+      icon: "1",
+    },
+    {
+      id: "pf2",
+      title: "Duas pessoas",
+      text: "Casal ou coproprietários juntos.",
+      icon: "2",
+    },
+    {
+      id: "pj",
+      title: "Empresa",
+      text: "Loja, revenda ou empresa com CNPJ.",
+      icon: "CNPJ",
+    },
+  ];
+
+  return (
+    <div className="grid gap-3">
+      <h2 className="text-xl font-semibold">{question}</h2>
+      <div className="grid gap-2">
+        {kinds.map((k) => {
+          const on = party.type === k.id;
+          return (
+            <button
+              key={k.id}
+              type="button"
+              onClick={() => onChange({ ...party, type: k.id })}
+              className={`flex min-h-16 items-center gap-3 rounded-2xl border px-4 py-3 text-left ${
+                on
+                  ? "border-violet-600 ring-2 ring-violet-600/20"
+                  : "border-zinc-200"
+              }`}
+            >
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-violet-100 text-xs font-semibold text-violet-700">
+                {k.icon}
+              </span>
+              <span className="flex-1">
+                <span className="block font-medium">{k.title}</span>
+                <span className="block text-sm text-zinc-500">{k.text}</span>
+              </span>
+              <span
+                className={`h-5 w-5 shrink-0 rounded-full border ${
+                  on
+                    ? "border-4 border-violet-600"
+                    : "border-2 border-zinc-300"
+                }`}
+              />
+            </button>
+          );
+        })}
+      </div>
+      {party.type === "pj" ? (
+        <>
+          <Field label="Razão social">
+            <input
+              className={input}
+              value={party.name}
+              onChange={(e) => onChange({ ...party, name: e.target.value })}
+            />
+          </Field>
+          <Field label="CNPJ">
+            <input
+              className={input}
+              inputMode="numeric"
+              value={party.document}
+              onChange={(e) => onChange({ ...party, document: e.target.value })}
+            />
+          </Field>
+        </>
+      ) : (
+        <>
+          <Field label={party.type === "pf2" ? "Nome da 1ª pessoa" : "Nome completo"}>
+            <input
+              className={input}
+              autoComplete="name"
+              value={party.name}
+              onChange={(e) => onChange({ ...party, name: e.target.value })}
+            />
+          </Field>
+          <Field label={party.type === "pf2" ? "CPF da 1ª pessoa" : "CPF"}>
+            <input
+              className={input}
+              inputMode="numeric"
+              value={party.document}
+              onChange={(e) => onChange({ ...party, document: e.target.value })}
+            />
+          </Field>
+          {party.type === "pf2" && (
+            <>
+              <Field label="Nome da 2ª pessoa">
+                <input
+                  className={input}
+                  value={party.name2}
+                  onChange={(e) => onChange({ ...party, name2: e.target.value })}
+                />
+              </Field>
+              <Field label="CPF da 2ª pessoa">
+                <input
+                  className={input}
+                  inputMode="numeric"
+                  value={party.document2}
+                  onChange={(e) =>
+                    onChange({ ...party, document2: e.target.value })
+                  }
+                />
+              </Field>
+            </>
+          )}
+        </>
       )}
     </div>
   );

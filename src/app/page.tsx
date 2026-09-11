@@ -31,7 +31,7 @@ export default function Home() {
         <h2 className="mb-8 text-center text-2xl font-semibold">Como funciona</h2>
         <ol className="grid gap-4 sm:grid-cols-3">
           {[
-            ["1", "Preencha", "Dados das partes, do veículo e da venda."],
+            ["1", "Preencha", "Só o essencial: partes, veículo e valor."],
             ["2", "Confira", "O contrato aparece ao lado, conforme você preenche."],
             ["3", "Assine e baixe", "Pague, assine pelo site e baixe o arquivo."],
           ].map(([n, t, d]) => (
