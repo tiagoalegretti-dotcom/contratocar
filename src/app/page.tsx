@@ -92,7 +92,7 @@ export default function Home() {
             [
               "1",
               "Comece o rascunho",
-              "Pode avançar sem preencher tudo. Depois do pagamento você completa os dados obrigatórios.",
+              "Monte o contrato: veículo, partes, preço, pagamento e situação. Chassi, RENAVAM e endereço ficam para depois, se não tiver em mãos.",
             ],
             [
               "2",

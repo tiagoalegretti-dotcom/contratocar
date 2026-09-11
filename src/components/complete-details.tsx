@@ -507,10 +507,10 @@ export function CompleteDetails({
 
   return (
     <div className="print:hidden">
-      <h2 className="text-xl font-semibold">Complete os dados do contrato</h2>
+      <h2 className="text-xl font-semibold">Complete o que faltou</h2>
       <p className="mt-1 text-sm text-zinc-600">
-        Depois do pagamento todos os campos são obrigatórios para gerar o
-        documento.
+        Agora entram chassi, RENAVAM, endereço completo, RG e o histórico do
+        veículo. O restante que você já preencheu continua no contrato.
       </p>
       <div className="mt-6 grid gap-4">
         <PartyBlock

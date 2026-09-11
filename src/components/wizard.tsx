@@ -5,11 +5,43 @@ import { EsignChoiceCards } from "@/components/esign-choice";
 import { Field, inputClass as input } from "@/components/form-ui";
 import { useAuth } from "@/components/auth-provider";
 import { saveContract } from "@/lib/contracts";
-import { emptyContract, type ContractData } from "@/lib/types";
+import {
+  ACCESSORIES_OPTIONS,
+  DEBTS_OPTIONS,
+  FINANCING_OPTIONS,
+  INSPECTION_OPTIONS,
+  PAYMENT_OPTIONS,
+  PENALTY_OPTIONS,
+  WARRANTY_OPTIONS,
+} from "@/lib/situation";
+import { emptyContract, type ContractData, type Party } from "@/lib/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const STEPS = ["Veículo", "Vendedor", "Comprador", "Valor"];
+const STEPS = ["Veículo", "Vendedor", "Comprador", "Negociação", "Situação"];
+
+function Select({
+  value,
+  onChange,
+  options,
+  placeholder = "Escolher",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: readonly { value: string; label: string }[];
+  placeholder?: string;
+}) {
+  return (
+    <select className={input} value={value} onChange={(e) => onChange(e.target.value)}>
+      <option value="">{placeholder}</option>
+      {options.map((o) => (
+        <option key={o.value} value={o.value}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 export function Wizard() {
   const [step, setStep] = useState(0);
@@ -104,8 +136,9 @@ export function Wizard() {
           <div className="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5">
             {step === STEPS.length - 1 && (
               <p className="mb-4 text-sm text-zinc-500">
-                Pode seguir sem preencher. Depois do pagamento você completa todos
-                os dados do contrato.
+                Pode seguir sem algum campo. Depois do pagamento faltam só o que
+                costuma estar no documento do veículo: chassi, RENAVAM, endereço
+                completo e o histórico detalhado.
               </p>
             )}
             {step === 0 && (
@@ -149,6 +182,50 @@ export function Wizard() {
                     onChange={(e) => set("plate", e.target.value.toUpperCase())}
                   />
                 </Field>
+                <Field label="Cor">
+                  <input className={input} value={data.color} onChange={(e) => set("color", e.target.value)} />
+                </Field>
+                <Field label="Ano de fabricação">
+                  <input
+                    className={input}
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={data.yearManufacture}
+                    onChange={(e) => set("yearManufacture", e.target.value)}
+                  />
+                </Field>
+                <Field label="Ano modelo">
+                  <input
+                    className={input}
+                    inputMode="numeric"
+                    maxLength={4}
+                    value={data.yearModel}
+                    onChange={(e) => set("yearModel", e.target.value)}
+                  />
+                </Field>
+                <Field label="Combustível">
+                  <select
+                    className={input}
+                    value={data.fuel}
+                    onChange={(e) => set("fuel", e.target.value)}
+                  >
+                    <option value="flex">Flex</option>
+                    <option value="gasolina">Gasolina</option>
+                    <option value="etanol">Etanol</option>
+                    <option value="diesel">Diesel</option>
+                    <option value="elétrico">Elétrico</option>
+                    <option value="híbrido">Híbrido</option>
+                    <option value="GNV">GNV</option>
+                  </select>
+                </Field>
+                <Field label="Quilometragem">
+                  <input
+                    className={input}
+                    inputMode="numeric"
+                    value={data.km}
+                    onChange={(e) => set("km", e.target.value)}
+                  />
+                </Field>
               </div>
             )}
             {step === 1 && (
@@ -166,7 +243,7 @@ export function Wizard() {
               />
             )}
             {step === 3 && (
-              <div className="grid gap-5">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <Field label="Preço da venda (R$)">
                   <input
                     className={input}
@@ -176,6 +253,180 @@ export function Wizard() {
                     onChange={(e) => set("price", e.target.value)}
                   />
                 </Field>
+                <Field label="Forma de pagamento">
+                  <Select
+                    value={data.paymentMethod}
+                    onChange={(paymentMethod) =>
+                      set("paymentMethod", paymentMethod as ContractData["paymentMethod"])
+                    }
+                    options={PAYMENT_OPTIONS}
+                  />
+                </Field>
+                {data.paymentMethod === "avista" && (
+                  <Field label="Como será pago à vista">
+                    <Select
+                      value={data.payChannel}
+                      onChange={(payChannel) =>
+                        set("payChannel", payChannel as ContractData["payChannel"])
+                      }
+                      options={[
+                        { value: "pix", label: "PIX" },
+                        { value: "transferencia", label: "Transferência" },
+                        { value: "dinheiro", label: "Dinheiro" },
+                      ]}
+                    />
+                  </Field>
+                )}
+                {data.paymentMethod === "sinal" && (
+                  <Field label="Valor do sinal (R$)">
+                    <input
+                      className={input}
+                      inputMode="decimal"
+                      value={data.depositAmount}
+                      onChange={(e) => set("depositAmount", e.target.value)}
+                    />
+                  </Field>
+                )}
+                {data.paymentMethod === "parcelado" && (
+                  <Field label="Parcelas">
+                    <input
+                      className={input}
+                      placeholder="Ex.: 12 parcelas de R$ 1.200"
+                      value={data.installments}
+                      onChange={(e) => set("installments", e.target.value)}
+                    />
+                  </Field>
+                )}
+                {data.paymentMethod === "troca" && (
+                  <Field label="Veículo da troca">
+                    <input
+                      className={input}
+                      placeholder="Marca, modelo e placa"
+                      value={data.tradeVehicle}
+                      onChange={(e) => set("tradeVehicle", e.target.value)}
+                    />
+                  </Field>
+                )}
+                <Field label="Data da entrega">
+                  <input
+                    className={input}
+                    type="date"
+                    value={data.deliveryDate}
+                    onChange={(e) => set("deliveryDate", e.target.value)}
+                  />
+                </Field>
+                <Field label="Local da entrega">
+                  <input
+                    className={input}
+                    value={data.deliveryPlace}
+                    onChange={(e) => set("deliveryPlace", e.target.value)}
+                  />
+                </Field>
+                <Field label="Prazo para transferir (dias)">
+                  <input
+                    className={input}
+                    inputMode="numeric"
+                    value={data.transferDays}
+                    onChange={(e) => set("transferDays", e.target.value)}
+                  />
+                </Field>
+              </div>
+            )}
+            {step === 4 && (
+              <div className="grid gap-3">
+                <Field label="Financiamento">
+                  <Select
+                    value={data.financing}
+                    onChange={(financing) =>
+                      set("financing", financing as ContractData["financing"])
+                    }
+                    options={FINANCING_OPTIONS}
+                  />
+                </Field>
+                <Field label="Débitos (IPVA, multas)">
+                  <Select
+                    value={data.debtsStatus}
+                    onChange={(debtsStatus) =>
+                      set("debtsStatus", debtsStatus as ContractData["debtsStatus"])
+                    }
+                    options={DEBTS_OPTIONS}
+                  />
+                </Field>
+                {data.debtsStatus === "listed" && (
+                  <Field label="Quais débitos">
+                    <input
+                      className={input}
+                      placeholder="Ex.: IPVA 2026 e 2 multas"
+                      value={data.debts}
+                      onChange={(e) => set("debts", e.target.value)}
+                    />
+                  </Field>
+                )}
+                <Field label="Vistoria do comprador">
+                  <Select
+                    value={data.inspection}
+                    onChange={(inspection) =>
+                      set("inspection", inspection as ContractData["inspection"])
+                    }
+                    options={INSPECTION_OPTIONS}
+                  />
+                </Field>
+                <Field label="Itens e acessórios">
+                  <Select
+                    value={data.accessoriesStatus}
+                    onChange={(accessoriesStatus) =>
+                      set(
+                        "accessoriesStatus",
+                        accessoriesStatus as ContractData["accessoriesStatus"],
+                      )
+                    }
+                    options={ACCESSORIES_OPTIONS}
+                  />
+                </Field>
+                {data.accessoriesStatus === "extras" && (
+                  <Field label="Quais itens extras">
+                    <input
+                      className={input}
+                      placeholder="Ex.: som, película, estepe"
+                      value={data.accessoriesNote}
+                      onChange={(e) => set("accessoriesNote", e.target.value)}
+                    />
+                  </Field>
+                )}
+                <Field label="Garantia">
+                  <Select
+                    value={data.warranty}
+                    onChange={(warranty) =>
+                      set("warranty", warranty as ContractData["warranty"])
+                    }
+                    options={WARRANTY_OPTIONS}
+                  />
+                </Field>
+                <Field label="Multa se alguém desistir">
+                  <Select
+                    value={data.penaltyKind}
+                    onChange={(penaltyKind) =>
+                      set("penaltyKind", penaltyKind as ContractData["penaltyKind"])
+                    }
+                    options={PENALTY_OPTIONS}
+                  />
+                </Field>
+                {(data.penaltyKind === "custom_percent" ||
+                  data.penaltyKind === "fixed") && (
+                  <Field
+                    label={
+                      data.penaltyKind === "custom_percent"
+                        ? "Percentual da multa"
+                        : "Valor da multa (R$)"
+                    }
+                  >
+                    <input
+                      className={input}
+                      value={data.penaltyValue}
+                      onChange={(e) => set("penaltyValue", e.target.value)}
+                    />
+                  </Field>
+                )}
                 <EsignChoiceCards
                   value={data.wantEsign}
                   onChange={(wantEsign) => set("wantEsign", wantEsign)}
@@ -336,6 +587,82 @@ function MiniParty({
           )}
         </>
       )}
+      {party.type !== "pj" && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label={party.type === "pf2" ? "Estado civil da 1ª pessoa" : "Estado civil"}>
+            <input
+              className={input}
+              value={party.maritalStatus}
+              onChange={(e) => onChange({ ...party, maritalStatus: e.target.value })}
+            />
+          </Field>
+          <Field label={party.type === "pf2" ? "Profissão da 1ª pessoa" : "Profissão"}>
+            <input
+              className={input}
+              value={party.occupation}
+              onChange={(e) => onChange({ ...party, occupation: e.target.value })}
+            />
+          </Field>
+          {party.type === "pf2" && (
+            <>
+              <Field label="Estado civil da 2ª pessoa">
+                <input
+                  className={input}
+                  value={party.maritalStatus2}
+                  onChange={(e) =>
+                    onChange({ ...party, maritalStatus2: e.target.value })
+                  }
+                />
+              </Field>
+              <Field label="Profissão da 2ª pessoa">
+                <input
+                  className={input}
+                  value={party.occupation2}
+                  onChange={(e) =>
+                    onChange({ ...party, occupation2: e.target.value })
+                  }
+                />
+              </Field>
+            </>
+          )}
+        </div>
+      )}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label="E-mail">
+          <input
+            className={input}
+            type="email"
+            value={party.email}
+            onChange={(e) => onChange({ ...party, email: e.target.value })}
+          />
+        </Field>
+        <Field label="Telefone">
+          <input
+            className={input}
+            type="tel"
+            inputMode="tel"
+            value={party.phone}
+            onChange={(e) => onChange({ ...party, phone: e.target.value })}
+          />
+        </Field>
+        <Field label="Cidade">
+          <input
+            className={input}
+            value={party.city}
+            onChange={(e) => onChange({ ...party, city: e.target.value })}
+          />
+        </Field>
+        <Field label="UF">
+          <input
+            className={input}
+            maxLength={2}
+            value={party.state}
+            onChange={(e) =>
+              onChange({ ...party, state: e.target.value.toUpperCase() })
+            }
+          />
+        </Field>
+      </div>
     </div>
   );
 }
