@@ -2,16 +2,16 @@
 
 import { Field, inputClass as input } from "@/components/form-ui";
 import { ChoiceScreen, DeclarationScreen, SituationRow } from "@/components/situation-picker";
+import { applyHistoryStatus, HISTORY_STEPS, type HistoryStep } from "@/lib/history";
 import { isContractComplete } from "@/lib/validate";
 import {
   ACCESSORIES_OPTIONS,
   DEBTS_OPTIONS,
-  DEFECTS_OPTIONS,
   FINANCING_OPTIONS,
   INSPECTION_OPTIONS,
   situationSummaries,
 } from "@/lib/situation";
-import type { AccessoriesStatus, ContractData, DebtsStatus, DefectsStatus, FinancingStatus, InspectionStatus, Party, PayChannel, PaymentMethod, PenaltyKind, WarrantyStatus } from "@/lib/types";
+import type { AccessoriesStatus, ContractData, DebtsStatus, FinancingStatus, InspectionStatus, Party, PayChannel, PaymentMethod, PenaltyKind, WarrantyStatus, YesNo } from "@/lib/types";
 import { useState } from "react";
 
 async function fillCep(party: Party, zip: string, onChange: (p: Party) => void) {
@@ -150,7 +150,6 @@ export function CompleteDetails({
   const [declare, setDeclare] = useState<
     | null
     | "debts"
-    | "defects"
     | "accessories"
     | "warranty"
     | "payment"
@@ -161,6 +160,8 @@ export function CompleteDetails({
     | "penalty"
     | "penaltyValue"
   >(null);
+  const [historyIndex, setHistoryIndex] = useState<number | null>(null);
+  const [historyAskNote, setHistoryAskNote] = useState(false);
   const ready = isContractComplete(local);
   const sums = situationSummaries(local);
 
@@ -169,20 +170,87 @@ export function CompleteDetails({
       setTried(true);
       return;
     }
-    onContinue(local);
+    onContinue(applyHistoryStatus(local));
   }
 
-  if (declare === "defects") {
+  const historyStep: HistoryStep | undefined =
+    historyIndex !== null ? HISTORY_STEPS[historyIndex] : undefined;
+
+  if (historyStep && historyAskNote) {
     return (
       <DeclarationScreen
-        title="Qual histórico ou defeito será declarado?"
-        hint="Escrever agora deixa o vendedor mais protegido se surgir discussão depois."
-        label="Histórico ou defeitos do veículo"
-        placeholder="Ex.: veículo de leilão; risco na porta direita; ar-condicionado sem gás"
-        value={local.knownDefects}
-        onChange={(knownDefects) => setLocal({ ...local, knownDefects })}
-        onBack={() => setDeclare(null)}
-        onDone={() => setDeclare(null)}
+        title={historyStep.noteTitle}
+        hint={historyStep.noteHint}
+        label={historyStep.noteLabel}
+        placeholder={historyStep.placeholder}
+        value={String(local[historyStep.noteKey] ?? "")}
+        onChange={(value) =>
+          setLocal({ ...local, [historyStep.noteKey]: value })
+        }
+        onBack={() => setHistoryAskNote(false)}
+        onDone={() => {
+          const next = historyIndex! + 1;
+          setHistoryAskNote(false);
+          if (next >= HISTORY_STEPS.length) {
+            setHistoryIndex(null);
+            setLocal((prev) => applyHistoryStatus(prev));
+          } else {
+            setHistoryIndex(next);
+          }
+        }}
+      />
+    );
+  }
+
+  if (historyStep) {
+    return (
+      <ChoiceScreen
+        title={historyStep.title}
+        hint={historyStep.hint}
+        value={String(local[historyStep.key] ?? "")}
+        onBack={() => {
+          if (historyIndex === 0) {
+            setHistoryIndex(null);
+            return;
+          }
+          const prev = HISTORY_STEPS[historyIndex! - 1];
+          setHistoryIndex(historyIndex! - 1);
+          setHistoryAskNote(local[prev.key] === "yes");
+        }}
+        onSelect={(value) => {
+          const yes = value === "yes";
+          const nextData = {
+            ...local,
+            [historyStep.key]: value as YesNo,
+            [historyStep.noteKey]: yes
+              ? local[historyStep.noteKey]
+              : "",
+          };
+          setLocal(nextData);
+          if (yes) {
+            setHistoryAskNote(true);
+            return;
+          }
+          const next = historyIndex! + 1;
+          if (next >= HISTORY_STEPS.length) {
+            setHistoryIndex(null);
+            setLocal(applyHistoryStatus(nextData));
+          } else {
+            setHistoryIndex(next);
+          }
+        }}
+        options={[
+          {
+            value: "yes",
+            title: historyStep.yesTitle,
+            description: historyStep.yesDescription,
+          },
+          {
+            value: "no",
+            title: historyStep.noTitle,
+            description: historyStep.noDescription,
+          },
+        ]}
       />
     );
   }
@@ -523,17 +591,10 @@ export function CompleteDetails({
           <SituationRow
             title="Histórico e defeitos"
             summary={sums.defects}
-            options={DEFECTS_OPTIONS}
-            value={local.defectsStatus}
-            followUpValues={["listed"]}
-            onFollowUp={() => setDeclare("defects")}
-            onSelect={(defectsStatus) =>
-              setLocal({
-                ...local,
-                defectsStatus: defectsStatus as DefectsStatus,
-                knownDefects: defectsStatus === "none" ? "" : local.knownDefects,
-              })
-            }
+            onOpenPage={() => {
+              setHistoryAskNote(false);
+              setHistoryIndex(0);
+            }}
           />
           <SituationRow
             title="Vistoria do comprador"

@@ -1,4 +1,5 @@
 import type { ContractData } from "./types";
+import { historySummary } from "./history";
 
 export const FINANCING_OPTIONS = [
   { value: "none", label: "Não tem financiamento" },
@@ -9,11 +10,6 @@ export const FINANCING_OPTIONS = [
 export const DEBTS_OPTIONS = [
   { value: "none", label: "Não há débitos" },
   { value: "listed", label: "Há IPVA, multas ou outros débitos" },
-] as const;
-
-export const DEFECTS_OPTIONS = [
-  { value: "none", label: "Nada a declarar" },
-  { value: "listed", label: "Há histórico ou defeitos a declarar" },
 ] as const;
 
 export const INSPECTION_OPTIONS = [
@@ -61,10 +57,7 @@ export function situationSummaries(data: ContractData) {
       data.debtsStatus === "listed" && data.debts.trim()
         ? data.debts.trim()
         : labelOf(DEBTS_OPTIONS, data.debtsStatus, "Escolher"),
-    defects:
-      data.defectsStatus === "listed" && data.knownDefects.trim()
-        ? data.knownDefects.trim()
-        : labelOf(DEFECTS_OPTIONS, data.defectsStatus, "Escolher"),
+    defects: historySummary(data),
     inspection: labelOf(INSPECTION_OPTIONS, data.inspection, "Escolher"),
     accessories:
       data.accessoriesStatus === "extras" && data.accessoriesNote.trim()

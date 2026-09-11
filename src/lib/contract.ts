@@ -1,3 +1,4 @@
+import { compileVehicleHistory } from "./history";
 import { formatBRL, moneyExtenso } from "./money";
 import type { ContractData, Party } from "./types";
 
@@ -95,10 +96,10 @@ function debtsClause(data: ContractData) {
 }
 
 function defectsClause(data: ContractData) {
-  const defects =
-    data.defectsStatus === "listed"
-      ? `O(A) VENDEDOR(A) declara os seguintes fatos/defeitos conhecidos: ${blank(data.knownDefects)}.`
-      : "O(A) VENDEDOR(A) declara não ter outros fatos ou defeitos a informar além do desgaste natural do uso.";
+  const history = compileVehicleHistory(data).trim();
+  const defects = history
+    ? history
+    : "O(A) VENDEDOR(A) declara não ter outros fatos ou defeitos a informar além do desgaste natural do uso.";
   const inspection =
     data.inspection === "not_done"
       ? " O(A) COMPRADOR(A) declara que não vistoriou o veículo e assume o risco dessa escolha."
@@ -185,7 +186,7 @@ export function buildClauses(data: ContractData): Clause[] {
       body: debtsClause(data),
     },
     {
-      title: "DOS DEFEITOS CONHECIDOS",
+      title: "DO HISTÓRICO E DEFEITOS CONHECIDOS",
       body: defectsClause(data),
     },
     {

@@ -12,6 +12,7 @@ export type AccessoriesStatus = "" | "stock" | "extras";
 export type WarrantyStatus = "" | "as_is" | "legal";
 export type PenaltyKind = "" | "10" | "20" | "custom_percent" | "fixed" | "none";
 export type EsignChoice = "" | "yes" | "no";
+export type YesNo = "" | "yes" | "no";
 
 export type Party = {
   type: PersonType;
@@ -65,6 +66,16 @@ export type ContractData = {
   knownDefects: string;
   debts: string;
   defectsStatus: DefectsStatus;
+  historyCrash: YesNo;
+  historyCrashNote: string;
+  historyAuction: YesNo;
+  historyAuctionNote: string;
+  historyParts: YesNo;
+  historyPartsNote: string;
+  historyDocs: YesNo;
+  historyDocsNote: string;
+  historyOther: YesNo;
+  historyOtherNote: string;
   inspection: InspectionStatus;
   accessoriesStatus: AccessoriesStatus;
   accessoriesNote: string;
@@ -129,6 +140,16 @@ export const emptyContract = (): ContractData => ({
   knownDefects: "",
   debts: "",
   defectsStatus: "",
+  historyCrash: "",
+  historyCrashNote: "",
+  historyAuction: "",
+  historyAuctionNote: "",
+  historyParts: "",
+  historyPartsNote: "",
+  historyDocs: "",
+  historyDocsNote: "",
+  historyOther: "",
+  historyOtherNote: "",
   inspection: "",
   accessoriesStatus: "",
   accessoriesNote: "",

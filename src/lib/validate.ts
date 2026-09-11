@@ -1,4 +1,5 @@
 import type { ContractData, Party } from "./types";
+import { isHistoryComplete } from "./history";
 
 function filled(v: string) {
   return Boolean(v.trim());
@@ -62,8 +63,7 @@ export function isContractComplete(data: ContractData) {
     Boolean(data.financing) &&
     Boolean(data.debtsStatus) &&
     (data.debtsStatus !== "listed" || filled(data.debts)) &&
-    Boolean(data.defectsStatus) &&
-    (data.defectsStatus !== "listed" || filled(data.knownDefects)) &&
+    isHistoryComplete(data) &&
     Boolean(data.inspection) &&
     Boolean(data.accessoriesStatus) &&
     (data.accessoriesStatus !== "extras" || filled(data.accessoriesNote)) &&
