@@ -28,7 +28,7 @@ function GoogleMark() {
 }
 
 export default function EntrarPage() {
-  const { user, loading, ready, signInGoogle } = useAuth();
+  const { user, loading, signInGoogle } = useAuth();
   const router = useRouter();
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -61,12 +61,6 @@ export default function EntrarPage() {
 
       {loading ? (
         <p className="mt-8 text-sm text-zinc-500">Carregando...</p>
-      ) : !ready ? (
-        <p className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-left text-sm text-amber-900">
-          Falta configurar o Firebase. Coloque as chaves{" "}
-          <code className="font-mono">NEXT_PUBLIC_FIREBASE_*</code> no{" "}
-          <code className="font-mono">.env.local</code> e no painel da Vercel.
-        </p>
       ) : (
         <button
           type="button"
