@@ -1,4 +1,4 @@
-export type PersonType = "pf" | "pf2" | "pj";
+export type PersonType = "" | "pf" | "pf2" | "pj";
 export type VehicleKind = "carro" | "moto" | "caminhao";
 export type VehicleCondition = "usado" | "zero";
 export type PaymentMethod = "" | "avista" | "sinal" | "parcelado" | "troca";
@@ -89,7 +89,7 @@ export type ContractData = {
 };
 
 export const emptyParty = (): Party => ({
-  type: "pf",
+  type: "",
   name: "",
   document: "",
   rg: "",
@@ -127,16 +127,16 @@ export const emptyContract = (): ContractData => ({
   km: "",
   fuel: "flex",
   price: "",
-  paymentMethod: "",
-  payChannel: "",
+  paymentMethod: "avista",
+  payChannel: "pix",
   installments: "",
   depositAmount: "",
   tradeVehicle: "",
   tradeDifference: "",
   deliveryDate: "",
   deliveryPlace: "",
-  financing: "",
-  debtsStatus: "",
+  financing: "none",
+  debtsStatus: "none",
   knownDefects: "",
   debts: "",
   defectsStatus: "",
@@ -150,11 +150,11 @@ export const emptyContract = (): ContractData => ({
   historyDocsNote: "",
   historyOther: "",
   historyOtherNote: "",
-  inspection: "",
-  accessoriesStatus: "",
+  inspection: "done",
+  accessoriesStatus: "stock",
   accessoriesNote: "",
-  warranty: "",
-  penaltyKind: "",
+  warranty: "as_is",
+  penaltyKind: "10",
   penaltyValue: "",
   transferDays: "30",
   cityForum: "",

@@ -24,16 +24,13 @@ function Select({
   value,
   onChange,
   options,
-  placeholder = "Escolher",
 }: {
   value: string;
   onChange: (v: string) => void;
   options: readonly { value: string; label: string }[];
-  placeholder?: string;
 }) {
   return (
     <select className={input} value={value} onChange={(e) => onChange(e.target.value)}>
-      <option value="">{placeholder}</option>
       {options.map((o) => (
         <option key={o.value} value={o.value}>
           {o.label}
@@ -97,7 +94,7 @@ export function Wizard() {
 
   return (
     <div className="mx-auto grid max-w-6xl gap-6 px-4 pb-24 pt-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:px-6 lg:py-6 lg:pb-6">
-      <div className="lg:sticky lg:top-20 lg:self-start">
+      <div>
         <div className="mb-4 flex gap-2 lg:hidden">
           <button
             className={`min-h-12 flex-1 rounded-full text-base font-medium ${
@@ -450,7 +447,7 @@ export function Wizard() {
       {tab === "preview" ? (
         <ContractPreview data={data} locked />
       ) : (
-        <div className="hidden lg:block">
+        <div className="hidden lg:sticky lg:top-20 lg:block lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
           <ContractPreview data={data} locked />
         </div>
       )}
@@ -528,6 +525,12 @@ function MiniParty({
           );
         })}
       </div>
+      {!party.type ? (
+        <p className="text-sm text-zinc-500">
+          Escolha uma opção para preencher os dados.
+        </p>
+      ) : (
+        <>
       {party.type === "pj" ? (
         <>
           <Field label="Razão social">
@@ -663,6 +666,8 @@ function MiniParty({
           />
         </Field>
       </div>
+        </>
+      )}
     </div>
   );
 }

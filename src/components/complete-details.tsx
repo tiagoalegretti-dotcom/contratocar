@@ -53,7 +53,26 @@ function PartyBlock({
   return (
     <fieldset className="grid gap-3 rounded-2xl border border-zinc-200 p-4">
       <legend className="px-1 text-sm font-semibold">{title}</legend>
-      {party.type === "pj" ? (
+      {!party.type ? (
+        <div className="grid gap-2">
+          {(
+            [
+              ["pf", "Uma pessoa"],
+              ["pf2", "Duas pessoas"],
+              ["pj", "Empresa"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              className="min-h-12 rounded-2xl border border-zinc-200 px-4 text-left text-sm font-medium"
+              onClick={() => onChange({ ...party, type: id })}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : party.type === "pj" ? (
         <>
           <Field label="Razão social">
             <input className={input} value={party.name} onChange={(e) => onChange({ ...party, name: e.target.value })} />
@@ -102,6 +121,8 @@ function PartyBlock({
           </Field>
         </>
       )}
+      {party.type ? (
+        <>
       <Field label="E-mail">
         <input className={input} type="email" autoComplete="email" value={party.email} onChange={(e) => onChange({ ...party, email: e.target.value })} />
       </Field>
@@ -134,6 +155,8 @@ function PartyBlock({
           <input className={input} maxLength={2} value={party.state} onChange={(e) => onChange({ ...party, state: e.target.value.toUpperCase() })} />
         </Field>
       </div>
+        </>
+      ) : null}
     </fieldset>
   );
 }

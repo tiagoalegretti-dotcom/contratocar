@@ -6,6 +6,7 @@ function filled(v: string) {
 }
 
 function partyComplete(p: Party) {
+  if (!p.type) return false;
   const base =
     filled(p.name) &&
     filled(p.document) &&
