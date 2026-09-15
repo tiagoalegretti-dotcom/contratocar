@@ -1,9 +1,11 @@
 "use client";
 
+import { ContractPreview } from "@/components/contract-preview";
 import { useAuth } from "@/components/auth-provider";
 import { MpCheckout } from "@/components/mp-checkout";
 import { formatBRL } from "@/lib/money";
-import { PRICE_BRL } from "@/lib/types";
+import { emptyContract, PRICE_BRL, type ContractData } from "@/lib/types";
+import { useEffect, useState } from "react";
 
 export function PayClient({
   name,
@@ -16,6 +18,16 @@ export function PayClient({
 }) {
   const { user, idToken } = useAuth();
   const first = name.split(" ")[0];
+  const [data, setData] = useState<ContractData>(emptyContract);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("contratocar-contract");
+      if (raw) setData({ ...emptyContract(), ...(JSON.parse(raw) as ContractData) });
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   async function authHeader() {
     let token = await idToken();
@@ -29,57 +41,34 @@ export function PayClient({
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:py-12">
-      <div className="grid gap-8 lg:grid-cols-[1fr_24rem] lg:items-start">
-        <div className="order-2 lg:order-1">
-          <p className="text-sm text-zinc-500">Olá, {first}</p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Seu contrato está pronto
-          </h1>
-          <p className="mt-3 max-w-lg text-base text-zinc-600">
-            Você está a um passo de deixar a compra e venda do veículo
-            combinada por escrito, com as regras claras para os dois lados.
-          </p>
-          <p className="mt-4 max-w-lg text-sm text-zinc-600">
-            Faça como milhares de pessoas que já usaram o ContratoCar e
-            fecharam o negócio com mais tranquilidade.
-          </p>
-          <ul className="mt-8 grid gap-3 text-sm text-zinc-700">
-            <li className="flex gap-3">
-              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-100 text-xs text-emerald-700">
-                ✓
-              </span>
-              Rascunho preenchido e prévia do contrato pronta.
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-100 text-xs text-emerald-700">
-                ✓
-              </span>
-              Depois do pagamento você completa chassi, RENAVAM e endereço,
-              se ainda faltar.
-            </li>
-            <li className="flex gap-3">
-              <span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-violet-100 text-xs font-medium text-violet-800">
-                3
-              </span>
-              PIX ou cartão nesta página. Sem custo extra pela assinatura
-              eletrônica, se você já escolheu usá-la.
-            </li>
-          </ul>
-          {status === "falhou" && (
-            <p className="mt-4 text-sm text-amber-700">
-              O pagamento não foi concluído. Você pode tentar de novo.
-            </p>
-          )}
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
+      <div className="mb-6 max-w-2xl">
+        <p className="text-sm text-zinc-500">Olá, {first}</p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">
+          Seu contrato está pronto
+        </h1>
+        <p className="mt-2 text-sm text-zinc-600 sm:text-base">
+          Você está a um passo de deixar a compra e venda combinada por escrito.
+          Faça como milhares de pessoas que já usaram o ContratoCar.
+        </p>
+      </div>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="min-w-0">
+          <ContractPreview data={data} locked veil />
         </div>
-        <div className="order-1 min-w-0 rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 lg:order-2">
+        <div className="min-w-0 rounded-3xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 lg:sticky lg:top-24">
           <p className="text-sm font-medium text-zinc-500">Contrato de compra e venda</p>
           <div className="mt-4 flex items-center justify-between text-sm">
             <span>Total</span>
             <span className="text-lg font-semibold">{formatBRL(PRICE_BRL)}</span>
           </div>
-          <p className="mt-1 text-xs text-zinc-500">Pagamento único</p>
-          <div className="mt-6">
+          <p className="mt-1 text-xs text-zinc-500">Pagamento único · PIX ou cartão</p>
+          {status === "falhou" && (
+            <p className="mt-3 text-sm text-amber-700">
+              O pagamento não foi concluído. Você pode tentar de novo.
+            </p>
+          )}
+          <div className="mt-5">
             <MpCheckout
               amount={PRICE_BRL}
               email={email}

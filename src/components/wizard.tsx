@@ -113,10 +113,9 @@ export function Wizard() {
     sessionStorage.setItem("contratocar-checkout", "1");
     if (user) {
       await saveContract(user.uid, { id, data, paid: false });
-      router.push("/pagar");
-      return;
     }
-    router.push("/entrar");
+    await new Promise((r) => window.setTimeout(r, 2200));
+    router.push(user ? "/pagar" : "/entrar");
   }
 
   const nav = (
@@ -141,7 +140,7 @@ export function Wizard() {
           onClick={finish}
           className="min-h-12 flex-1 rounded-full bg-violet-600 px-5 text-base font-medium text-white disabled:opacity-40 lg:flex-none"
         >
-          {finishing ? "Aguarde..." : "Finalizar"}
+          {finishing ? "Gerando..." : "Finalizar"}
         </button>
       )}
     </>
@@ -183,8 +182,16 @@ export function Wizard() {
           </div>
         </div>
       )}
-      {gate === "loading" && (
-        <p className="col-span-full text-center text-sm text-zinc-500">Carregando...</p>
+      {finishing && (
+        <div className="fixed inset-0 z-[60] grid place-items-center bg-white/95 p-6">
+          <div className="text-center">
+            <span className="mx-auto block h-10 w-10 animate-spin rounded-full border-2 border-violet-200 border-t-violet-600" />
+            <p className="mt-5 text-lg font-semibold text-zinc-900">Gerando contrato</p>
+            <p className="mt-2 text-sm text-zinc-500">
+              Montando as cláusulas com os dados que você preencheu.
+            </p>
+          </div>
+        </div>
       )}
       <div>
         <div className="mb-4 flex gap-2 lg:hidden">
