@@ -14,7 +14,7 @@ export const metadata: Metadata = {
       try {
         return siteUrl();
       } catch {
-        return "https://contratocar.vercel.app";
+        return "https://contratocar.com.br";
       }
     })(),
   ),
